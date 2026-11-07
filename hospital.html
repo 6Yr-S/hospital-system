@@ -1,0 +1,2778 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>慧康云医院线上管理系统</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#111827;--muted:#56645c;--line:#c8d2cb;--bg:#e9ede9;
+  --brand:#0f6b3d;--brand-d:#0a4f2c;
+  --ok:#0a7a35;--warn:#b45309;--danger:#c0271f;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Segoe UI,sans-serif;
+  background:var(--bg);color:var(--ink);font-size:13.5px;-webkit-font-smoothing:antialiased}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ---------- 侧边栏 ---------- */
+.sidebar{width:216px;background:#10261a;color:#c5d8cc;display:flex;flex-direction:column;flex-shrink:0;border-right:1px solid #0a1810}
+.logo{padding:16px;display:flex;gap:10px;align-items:center;border-bottom:1px solid rgba(255,255,255,.1)}
+.logo .mark{width:32px;height:32px;background:var(--brand);
+  display:grid;place-items:center;color:#fff;font-size:16px;font-weight:700;flex-shrink:0}
+.logo-t{color:#fff;font-weight:700;font-size:15px;letter-spacing:.5px}
+.logo-s{font-size:11px;color:#7fa78c;margin-top:3px;letter-spacing:.5px}
+.role-strip{padding:8px 16px;font-size:11px;color:#fff;background:rgba(255,255,255,.06);
+  border-bottom:1px solid rgba(255,255,255,.08);letter-spacing:1px}
+.nav{flex:1;overflow-y:auto;padding:10px 8px}
+.nav-item{display:flex;gap:10px;align-items:center;padding:9px 10px;cursor:pointer;
+  color:#c5d8cc;font-size:13.5px;margin-bottom:2px;user-select:none;
+  border-left:3px solid transparent}
+.nav-item:hover{color:#fff}
+.nav-item.active{background:var(--brand);color:#fff;font-weight:600;border-left-color:#6fcf9a}
+.nav-item .ico{width:20px;height:20px;background:rgba(255,255,255,.12);
+  display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0;font-style:normal}
+.nav-item.active .ico{background:rgba(255,255,255,.24)}
+.side-foot{padding:12px 16px;font-size:11px;color:#6f8f7a;border-top:1px solid rgba(255,255,255,.1);line-height:1.7}
+
+/* ---------- 主区 ---------- */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:56px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;
+  padding:0 20px;gap:16px;justify-content:space-between;flex-shrink:0}
+.crumb{font-weight:700;font-size:15px;letter-spacing:.3px}
+.top-right{display:flex;align-items:center;gap:14px}
+.clock{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.role-sel{border:1px solid var(--line);background:#f4f8f5;padding:6px 10px;
+  font-size:13px;color:var(--ink);outline:none;cursor:pointer;font-family:inherit;font-weight:600}
+.role-sel:focus{border-color:var(--brand)}
+.user{display:flex;align-items:center;gap:9px}
+.avatar{width:34px;height:34px;background:var(--brand);
+  color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px;flex-shrink:0}
+.u-name{font-size:13px;font-weight:700}
+.u-role{font-size:11px;color:var(--muted);margin-top:2px}
+#view{flex:1;overflow-y:auto;padding:20px}
+
+/* ---------- 通用组件 ---------- */
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.page-head h2{font-size:19px;letter-spacing:.2px;font-weight:700}
+.page-head p{font-size:12.5px;color:var(--muted);margin-top:5px}
+.card{background:#fff;border:1px solid var(--line);padding:16px}
+.card+.card{margin-top:16px}
+.card-h{display:flex;align-items:center;gap:9px;font-weight:700;font-size:14px;margin-bottom:14px}
+.card-h::before{content:'';width:3px;height:14px;background:var(--brand);flex-shrink:0}
+.card-h .spacer{flex:1}
+.muted{color:var(--muted);font-weight:400;font-size:12.5px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.split{display:grid;grid-template-columns:290px 1fr;gap:16px;align-items:start}
+
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 14px;
+  cursor:pointer;font-size:13px;font-family:inherit;white-space:nowrap;font-weight:500}
+.btn:hover{border-color:#8fae9a}
+.btn-primary{background:var(--brand);color:#fff;border:1px solid var(--brand);font-weight:600}
+.btn-primary:hover{background:var(--brand-d);border-color:var(--brand-d)}
+.btn-sm{padding:5px 11px;font-size:12.5px}
+.btn-ghost{background:#f2f7f3}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-danger{color:var(--danger);border-color:#e3b3ae}
+.btn-danger:hover{background:#fdf2f1;border-color:var(--danger)}
+
+.badge{display:inline-block;background:#e0efe6;color:var(--brand);padding:1px 8px;
+  font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;padding:2px 8px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.t-ok{background:#dff2e6;color:var(--ok)}
+.t-warn{background:#fbeedb;color:var(--warn)}
+.t-danger{background:#fbe0de;color:var(--danger)}
+.t-info{background:#e0efe6;color:var(--brand)}
+.t-gray{background:#e9ede9;color:var(--muted)}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--muted);font-weight:700;font-size:12px;padding:9px 10px;
+  background:#f3f7f3;border-bottom:1px solid var(--line);white-space:nowrap;letter-spacing:.2px}
+td{padding:11px 10px;border-bottom:1px solid #eaf1ea;vertical-align:middle}
+tbody tr:hover{background:#f4faf5}
+tbody tr:last-child td{border-bottom:none}
+td b{font-variant-numeric:tabular-nums}
+
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:700}
+.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);
+  padding:9px 11px;font-size:13px;font-family:inherit;color:var(--ink);outline:none;background:#fbfdfb}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--brand);background:#fff}
+.field textarea{resize:vertical;min-height:62px;line-height:1.6}
+
+/* ---------- 工作台 ---------- */
+.kpi{background:#fff;border:1px solid var(--line);padding:15px 16px}
+.kpi-l{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:6px}
+.kpi-v{font-size:26px;font-weight:700;margin:8px 0 2px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.kpi-v small{font-size:12px;font-weight:500;color:var(--muted);margin-left:3px}
+.kpi-sub{font-size:11.5px;color:var(--muted)}
+.bar{height:6px;background:#e4ece5;margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.flow-node{flex:1;min-width:110px;background:#f4f8f4;border:1px solid var(--line);
+  padding:12px;text-align:center}
+.flow-node b{display:block;font-size:19px;color:var(--brand);font-variant-numeric:tabular-nums}
+.flow-node span{font-size:12px;color:var(--muted)}
+.flow-arrow{color:#a8b8ae;font-size:15px}
+
+/* ---------- 预约挂号 ---------- */
+.stepbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.step{flex:1;min-width:130px;background:#fff;border:1px solid var(--line);padding:10px 14px;
+  font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.step b{width:20px;height:20px;background:#e8efe9;color:#84968a;
+  display:grid;place-items:center;font-size:11.5px;flex-shrink:0}
+.step.done{border-color:var(--brand);background:#f1f8f3;color:var(--brand);font-weight:700}
+.step.done b{background:var(--brand);color:#fff}
+.dept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+.dept{border:1.5px solid var(--line);padding:14px 8px;text-align:center;cursor:pointer;background:#fbfdfb}
+.dept:hover{border-color:#8fae9a;background:#f4faf5}
+.dept.sel{border-color:var(--brand);background:#e8f4ec}
+.dept .ico{width:26px;height:26px;background:#e0efe6;color:var(--brand);
+  display:grid;place-items:center;font-size:13px;font-weight:700;margin:0 auto 8px}
+.dept.sel .ico{background:var(--brand);color:#fff}
+.dept .nm{font-size:13px;font-weight:700}
+.doc{border:1.5px solid var(--line);padding:12px 14px;display:flex;gap:12px;align-items:center;
+  cursor:pointer;margin-bottom:10px;background:#fbfdfb}
+.doc:hover{border-color:#8fae9a;background:#f4faf5}
+.doc.sel{border-color:var(--brand);background:#e8f4ec}
+.doc .av{width:42px;height:42px;background:var(--brand);
+  color:#fff;display:grid;place-items:center;font-weight:700;font-size:15px;flex-shrink:0}
+.doc .dname{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
+.doc .dinfo{font-size:12px;color:var(--muted);margin-top:4px}
+.doc .dright{margin-left:auto;text-align:right}
+.doc .fee{color:var(--danger);font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+.doc .fee small{font-size:11px;font-weight:400;color:var(--muted)}
+.date-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.date-tab{border:1.5px solid var(--line);padding:8px 14px;font-size:13px;
+  cursor:pointer;background:#fbfdfb}
+.date-tab:hover{border-color:#8fae9a}
+.date-tab.sel{border-color:var(--brand);background:#e8f4ec;color:var(--brand);font-weight:700}
+.slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:9px}
+.slot{border:1.5px solid var(--line);padding:9px 6px;background:#fbfdfb;cursor:pointer;
+  font-family:inherit;text-align:center;color:var(--ink)}
+.slot b{display:block;font-size:12.5px;font-variant-numeric:tabular-nums}
+.slot span{font-size:11px;color:var(--muted)}
+.slot:hover:not(:disabled){border-color:#8fae9a;background:#f4faf5}
+.slot.sel{border-color:var(--brand);background:#e8f4ec}
+.slot:disabled{opacity:.45;cursor:not-allowed;background:#eef2ee}
+.summary{background:#f4f9f5;border:1px solid var(--line);padding:14px}
+.summary .row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;font-size:13px;border-bottom:1px dashed #d6e3d8}
+.summary .row:last-of-type{border-bottom:none}
+.summary .row b{font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.total{font-size:20px;color:var(--danger);font-weight:700}
+.success{text-align:center;padding:38px 20px;max-width:560px;margin:0 auto}
+.success .check{width:56px;height:56px;background:var(--ok);
+  color:#fff;font-size:30px;display:grid;place-items:center;margin:0 auto 16px}
+.success h3{font-size:19px;margin-bottom:8px}
+.health-code{display:flex;gap:16px;align-items:center;justify-content:center;background:#f4f9f5;
+  border:1px dashed #c6d8ca;padding:16px;margin:20px 0}
+.qr{display:grid;grid-template-columns:repeat(11,1fr);gap:2px;width:112px;height:112px;background:#fff;
+  padding:6px;border:1px solid var(--line)}
+.qr i{display:block;background:#10261a}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;letter-spacing:.5px;
+  color:var(--brand);font-weight:700}
+
+/* ---------- 医生站 ---------- */
+.queue-list{max-height:520px;overflow-y:auto;margin:-4px}
+.q-item{display:flex;gap:10px;align-items:center;padding:11px 10px;cursor:pointer;
+  margin-bottom:3px;border-left:3px solid transparent}
+.q-item:hover{background:#f2f8f3}
+.q-item.active{background:#e8f4ec;border-left-color:var(--brand)}
+.q-no{width:38px;height:38px;background:#e0efe6;color:var(--brand);display:grid;
+  place-items:center;font-weight:700;font-size:12px;flex-shrink:0;font-variant-numeric:tabular-nums}
+.q-item.active .q-no{background:var(--brand);color:#fff}
+.q-info{flex:1;min-width:0}
+.q-name{font-weight:700;font-size:13.5px}
+.q-name .muted{margin-left:5px;font-size:11.5px}
+.q-sym{font-size:11.5px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.patient-hd{display:flex;gap:14px;align-items:center;background:#f4f9f5;border:1px solid var(--line);
+  padding:13px 16px;margin-bottom:16px;flex-wrap:wrap}
+.patient-hd .pn{font-size:16px;font-weight:700}
+.chk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:8px}
+.chk{border:1.5px solid var(--line);padding:8px 11px;font-size:12.5px;cursor:pointer;
+  display:flex;gap:8px;align-items:center;background:#fbfdfb;user-select:none}
+.chk:hover{border-color:#8fae9a;background:#f4faf5}
+.chk.on{border-color:var(--brand);background:#e8f4ec;color:var(--brand);font-weight:700}
+.chk .box{width:15px;height:15px;border:1.5px solid #b5c8ba;display:grid;
+  place-items:center;font-size:10px;color:#fff;flex-shrink:0;background:#fff}
+.chk.on .box{background:var(--brand);border-color:var(--brand)}
+.chk .pr{margin-left:auto;font-size:11.5px;color:var(--muted);font-weight:400;font-variant-numeric:tabular-nums}
+.alert{padding:10px 13px;font-size:12.5px;margin-bottom:8px;display:flex;gap:8px;
+  line-height:1.6;border-left-width:3px;border-left-style:solid}
+.alert-danger{background:#fdf2f1;color:#8f1e18;border:1px solid #eec4c0;border-left-color:var(--danger)}
+.alert-warn{background:#fdf6ea;color:#7d3d05;border:1px solid #efdcb8;border-left-color:var(--warn)}
+.alert-ok{background:#eef8f2;color:#075c28;border:1px solid #bfe3ce;border-left-color:var(--ok)}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+
+/* ---------- 图表 ---------- */
+.chart{display:flex;align-items:flex-end;gap:14px;height:190px;padding-top:22px}
+.chart-item{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:7px}
+.chart-bar{background:var(--brand);position:relative;min-height:6px}
+.chart-bar span{position:absolute;top:-19px;left:0;right:0;text-align:center;font-size:11px;
+  color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+.chart-lbl{text-align:center;font-size:11.5px;color:var(--muted)}
+.stack{display:flex;height:26px;overflow:hidden;margin:14px 0 10px}
+.stack i{display:block;height:100%}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend em{display:inline-block;width:10px;height:10px;margin-right:5px}
+
+/* ---------- 弹窗 / Toast ---------- */
+.modal-mask{position:fixed;inset:0;background:rgba(10,26,16,.55);display:grid;place-items:center;
+  z-index:900;padding:20px}
+.modal{background:#fff;padding:22px;width:min(520px,100%);max-height:86vh;overflow-y:auto;border:1px solid var(--line)}
+.modal h3{font-size:16px;margin-bottom:14px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+#toasts{position:fixed;top:16px;right:16px;z-index:1000;display:flex;flex-direction:column;gap:9px}
+.toast{background:#fff;padding:11px 16px;font-size:13px;display:flex;gap:9px;align-items:center;
+  border:1px solid var(--line);border-left:4px solid var(--ok);max-width:360px}
+.toast.warn{border-left-color:var(--warn)}
+.toast.err{border-left-color:var(--danger)}
+.toast span{width:18px;height:18px;background:var(--ok);color:#fff;display:grid;
+  place-items:center;font-size:11px;flex-shrink:0}
+.toast.warn span{background:var(--warn)}
+.toast.err span{background:var(--danger)}
+
+/* ---------- 响应式 ---------- */
+@media(max-width:1100px){
+  .split{grid-template-columns:1fr}
+  .grid-4{grid-template-columns:repeat(2,1fr)}
+  .grid-3{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:820px){
+  .sidebar{width:64px}
+  .logo-t,.logo-s,.side-foot,.role-strip,.nav-item span.lbl{display:none}
+  .nav-item{justify-content:center;padding:12px 0;border-left-width:2px}
+  .logo{justify-content:center}
+  .grid-2{grid-template-columns:1fr}
+  .grid-4,.grid-3{grid-template-columns:1fr}
+  .clock,.u-name,.u-role{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app" id="appRoot">
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="mark">✚</span>
+      <div><div class="logo-t">慧康云医院</div><div class="logo-s">线上管理系统</div></div>
+    </div>
+    <div class="role-strip" id="roleStrip">医生视角</div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">等保 3 级 · 国密 SM2/SM3/SM4<br>WS 445-2014 · 医保 2.0</div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="crumb" id="crumb">工作台</div>
+      <div class="top-right">
+        <div class="clock" id="clock"></div>
+        <button class="btn btn-sm" id="logoutBtn" style="padding:6px 14px">退出登录</button>
+        <div class="user">
+          <div class="avatar" id="uAvatar">张</div>
+          <div><div class="u-name" id="uName">张伟</div><div class="u-role" id="uRole">主任医师 · 内科</div></div>
+        </div>
+      </div>
+    </header>
+    <main id="view"></main>
+  </div>
+</div>
+<div id="loginRoot" class="login-root">
+  <div class="login-card">
+    <div class="login-head">
+      <div class="mark">✚</div>
+      <h1>慧康云医院 · 线上管理系统</h1>
+      <p>统一登录 · 患者 / 医生 / 护士 / 药师 / 医保 / 管理员</p>
+    </div>
+    <div class="login-body">
+      <div id="loginBox">
+      <div class="field"><label>身份</label>
+        <select id="loginRole">
+          <option value="">— 请选择身份 —</option>
+          <option>患者</option><option>医生</option><option>护士</option>
+          <option>药师</option><option>医保人员</option><option>系统管理员</option>
+        </select>
+      </div>
+      <div class="field"><label>账号 / 姓名</label><input id="loginUser" placeholder="请输入账号或姓名" autocomplete="username"></div>
+      <div class="field"><label>密码</label><input id="loginPass" type="password" placeholder="请输入密码" autocomplete="current-password"></div>
+      <button class="btn btn-primary" id="loginBtn" style="width:100%;padding:10px">登 录</button>
+      <p class="reg-switch">没有账号？<a id="toReg" onclick="showReg()">注册新账号</a></p>
+      </div>
+      <div id="regBox" style="display:none">
+        <div class="field"><label>身份</label>
+          <select id="regRole">
+            <option value="">— 请选择身份 —</option>
+            <option>患者</option><option>医生</option><option>护士</option>
+            <option>药师</option><option>医保人员</option><option>系统管理员</option>
+          </select>
+        </div>
+        <div class="field"><label>姓名</label><input id="regName" placeholder="请输入姓名" autocomplete="off"></div>
+        <div class="field"><label>账号</label><input id="regUser" placeholder="留空则自动生成" autocomplete="off"></div>
+        <div class="field"><label>密码</label><input id="regPass" type="password" placeholder="至少 6 位" autocomplete="new-password"></div>
+        <div class="field"><label>确认密码</label><input id="regPass2" type="password" placeholder="再次输入密码" autocomplete="new-password"></div>
+        <button class="btn btn-primary" id="regBtn" style="width:100%;padding:10px" onclick="doRegister()">注 册</button>
+        <p class="reg-switch">已有账号？<a id="toLogin" onclick="showLogin()">返回登录</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+<div id="modalRoot"></div>
+
+<style>
+#appRoot{display:none}
+.login-root{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:50}
+.login-card{width:400px;background:#fff;border:1px solid var(--line);box-shadow:0 20px 60px rgba(16,38,26,.18)}
+.login-head{background:#10261a;color:#fff;padding:26px 24px;text-align:center}
+.login-head .mark{width:52px;height:52px;background:var(--brand);display:grid;place-items:center;font-size:26px;margin:0 auto 12px;color:#fff}
+.login-head h1{font-size:19px;letter-spacing:.5px}
+.login-head p{font-size:12px;color:#7fa78c;margin-top:6px}
+.login-body{padding:24px}
+.reg-switch{font-size:12px;color:#666;text-align:center;margin:14px 0 0}
+.reg-switch a{color:var(--brand);cursor:pointer;text-decoration:underline}
+.demo{background:#f4f8f4;border:1px solid var(--line);padding:11px 12px;font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.9}
+.login-tip{text-align:center;font-size:12px;color:var(--muted);margin-top:16px}
+</style>
+<script>
+/* =========================================================
+   登录 / 后端对接（慧康云全栈版新增）
+   ========================================================= */
+const API_BASE = ''; /* 纯前端版：不使用后端，数据全部保存在浏览器 localStorage */
+let CURRENT_USER = null;
+
+/* =========================================================
+   纯前端本地数据层（替代后端 server.js）
+   所有数据保存在浏览器 localStorage，刷新/关闭后仍在
+   ========================================================= */
+const DB_KEY = 'hk_db_v1';
+const ROLES_ALL = ['患者', '医生', '护士', '药师', '医保人员', '系统管理员'];
+
+function hkSeedData() {
+  return {
+    users: [
+      { username: 'admin',      name: 'Admin',  role: '系统管理员', pwd: '123456', profile: { desc: '系统管理员', avatar: 'A' } },
+      { username: 'doctor1',    name: '张伟',   role: '医生',       pwd: '123456', profile: { desc: '主任医师 · 内科', avatar: '张', doctorId: 'D1' } },
+      { username: 'doctor2',    name: '孙丽',   role: '医生',       pwd: '123456', profile: { desc: '副主任医师 · 妇科', avatar: '孙', doctorId: 'D5' } },
+      { username: 'nurse1',     name: '刘芳',   role: '护士',       pwd: '123456', profile: { desc: '主管护师 · 内科病区', avatar: '刘' } },
+      { username: 'pharma1',    name: '陈静',   role: '药师',       pwd: '123456', profile: { desc: '主管药师 · 门诊药房', avatar: '陈' } },
+      { username: 'insurance1', name: '王磊',   role: '医保人员',   pwd: '123456', profile: { desc: '医保办 · 审核员', avatar: '王' } },
+      { username: 'patient1',   name: '李建国', role: '患者',       pwd: '123456', profile: { desc: '患者 · 男 62岁', avatar: '李' } },
+      { username: 'patient2',   name: '王秀兰', role: '患者',       pwd: '123456', profile: { desc: '患者 · 女 45岁', avatar: '王' } },
+      { username: 'patient3',   name: '陈浩',   role: '患者',       pwd: '123456', profile: { desc: '患者 · 男 28岁', avatar: '陈' } }
+    ],
+    departments: [
+      { id: 'nk', name: '内科', icon: '内' }, { id: 'wk', name: '外科', icon: '外' },
+      { id: 'ek', name: '儿科', icon: '儿' }, { id: 'fk', name: '妇科', icon: '妇' },
+      { id: 'gk', name: '骨科', icon: '骨' }, { id: 'yyk', name: '眼科', icon: '眼' }
+    ],
+    doctors: [
+      { id: 'D1', name: '张伟', title: '主任医师', dept: 'nk', fee: 50, rating: 4.9 },
+      { id: 'D2', name: '李敏', title: '副主任医师', dept: 'nk', fee: 30, rating: 4.8 },
+      { id: 'D3', name: '王强', title: '主任医师', dept: 'wk', fee: 50, rating: 4.7 },
+      { id: 'D4', name: '赵晓', title: '主治医师', dept: 'ek', fee: 20, rating: 4.9 },
+      { id: 'D5', name: '孙丽', title: '副主任医师', dept: 'fk', fee: 30, rating: 4.8 },
+      { id: 'D6', name: '周涛', title: '主任医师', dept: 'gk', fee: 50, rating: 4.6 },
+      { id: 'D7', name: '吴敏', title: '主治医师', dept: 'yyk', fee: 20, rating: 4.7 }
+    ],
+    slots: ['08:00-08:30', '08:30-09:00', '09:00-09:30', '09:30-10:00', '10:00-10:30',
+            '10:30-11:00', '14:00-14:30', '14:30-15:00', '15:00-15:30', '15:30-16:00'],
+    drugs: [
+      { id: 'd1', name: '阿莫西林胶囊', spec: '0.5g×24粒', price: 28.5 },
+      { id: 'd2', name: '阿司匹林肠溶片', spec: '100mg×30片', price: 15.8 },
+      { id: 'd3', name: '华法林钠片', spec: '2.5mg×60片', price: 22.0 },
+      { id: 'd4', name: '布洛芬缓释胶囊', spec: '0.3g×20粒', price: 18.6 },
+      { id: 'd5', name: '头孢克肟分散片', spec: '0.1g×12片', price: 32.4 },
+      { id: 'd6', name: '甲硝唑片', spec: '0.2g×100片', price: 8.9 },
+      { id: 'd7', name: '奥美拉唑肠溶胶囊', spec: '20mg×14粒', price: 36.0 },
+      { id: 'd8', name: '缬沙坦胶囊', spec: '80mg×7粒', price: 24.5 },
+      { id: 'd9', name: '连花清瘟胶囊', spec: '0.35g×24粒', price: 19.9 }
+    ],
+    labs: ['血常规', '尿常规', '肝功能', '肾功能', '电解质', '心肌酶谱', '凝血功能'],
+    exams: ['心电图', '胸部DR', '腹部彩超', '头颅CT', '心脏彩超'],
+    templates: {
+      uri: { name: '上呼吸道感染', complaint: '发热、咳嗽、咽痛3天', history: '受凉后出现发热，最高体温38.5℃，伴咳嗽、咽痛，无呼吸困难。', diagnosis: '急性上呼吸道感染', labs: ['血常规'], exams: [], drugs: ['d9', 'd1'] },
+      htn: { name: '高血压随访', complaint: '头晕1周，血压控制不佳', history: '高血压病史8年，规律服用缬沙坦，近期血压波动于150/95mmHg。', diagnosis: '原发性高血压2级', labs: ['肾功能', '电解质'], exams: ['心电图'], drugs: ['d8'] },
+      gi:  { name: '急性胃肠炎', complaint: '腹痛、腹泻1天', history: '进食不洁食物后出现腹痛、腹泻，每日5-6次，水样便，无脓血。', diagnosis: '急性胃肠炎', labs: ['血常规', '电解质'], exams: [], drugs: ['d6', 'd7'] }
+    },
+    queue: [
+      { id: 'P001', no: 'A001', name: '李建国', sex: '男', age: 62, dept: '内科', doctor: '张伟', symptom: '反复胸闷3天', status: '候诊', patientId: 'patient1' },
+      { id: 'P002', no: 'A002', name: '王秀兰', sex: '女', age: 45, dept: '内科', doctor: '张伟', symptom: '咳嗽伴发热2天', status: '候诊', patientId: 'patient2' },
+      { id: 'P003', no: 'A003', name: '陈浩', sex: '男', age: 28, dept: '内科', doctor: '张伟', symptom: '腹痛腹泻1天', status: '候诊', patientId: 'patient3' }
+    ],
+    prescriptions: [
+      { id: 'RX2025061201', patient: '王秀兰', patientId: 'patient2', doctor: '张伟', doctorUser: 'doctor1', time: '08:12', status: '待审核', items: [{ name: '阿莫西林胶囊', spec: '0.5g×24粒', price: 28.5, qty: 1 }, { name: '连花清瘟胶囊', spec: '0.35g×24粒', price: 19.9, qty: 1 }] },
+      { id: 'RX2025061202', patient: '陈浩', patientId: 'patient3', doctor: '张伟', doctorUser: 'doctor1', time: '08:35', status: '待审核', items: [{ name: '甲硝唑片', spec: '0.2g×100片', price: 8.9, qty: 1 }, { name: '奥美拉唑肠溶胶囊', spec: '20mg×14粒', price: 36.0, qty: 1 }] },
+      { id: 'RX2025061203', patient: '赵敏', patientId: 'patient4', doctor: '孙丽', doctorUser: 'doctor2', time: '08:50', status: '已审核', items: [{ name: '缬沙坦胶囊', spec: '80mg×7粒', price: 24.5, qty: 2 }] },
+      { id: 'RX2025061204', patient: '李建国', patientId: 'patient1', doctor: '张伟', doctorUser: 'doctor1', time: '09:02', status: '已发药', items: [{ name: '阿司匹林肠溶片', spec: '100mg×30片', price: 15.8, qty: 1 }] }
+    ],
+    records: [
+      { id: 'EMR2025061201', patient: '王秀兰', patientId: 'patient2', sex: '女', age: 45, dept: '内科', doctor: '张伟', complaint: '咳嗽伴发热2天', diagnosis: '急性上呼吸道感染', time: '2025-06-12 08:10', version: 'v1.2', status: '已归档' },
+      { id: 'EMR2025061202', patient: '陈浩', patientId: 'patient3', sex: '男', age: 28, dept: '内科', doctor: '张伟', complaint: '腹痛腹泻1天', diagnosis: '急性胃肠炎', time: '2025-06-12 08:32', version: 'v1.0', status: '已归档' },
+      { id: 'EMR2025061103', patient: '赵敏', patientId: 'patient4', sex: '女', age: 51, dept: '妇科', doctor: '孙丽', complaint: '下腹坠胀1周', diagnosis: '慢性盆腔炎', time: '2025-06-11 15:20', version: 'v2.0', status: '已归档' },
+      { id: 'EMR2025061101', patient: '李建国', patientId: 'patient1', sex: '男', age: 62, dept: '内科', doctor: '张伟', complaint: '反复胸闷3天', diagnosis: '冠心病 稳定型心绞痛', time: '2025-06-11 14:10', version: 'v1.1', status: '已归档' }
+    ],
+    results: [
+      { patient: '王秀兰', patientId: 'patient2', item: '血钾', value: '6.8 mmol/L', ref: '3.5-5.5', time: '08:40', level: '危急' },
+      { patient: '王秀兰', patientId: 'patient2', item: 'C反应蛋白', value: '28 mg/L', ref: '<10', time: '08:40', level: '异常' },
+      { patient: '陈浩', patientId: 'patient3', item: '白细胞计数', value: '12.6×10⁹/L', ref: '4.0-10.0', time: '08:25', level: '异常' },
+      { patient: '李建国', patientId: 'patient1', item: '肌钙蛋白I', value: '0.02 ng/mL', ref: '<0.04', time: '08:10', level: '正常' },
+      { patient: '李建国', patientId: 'patient1', item: '心电图', value: '窦性心律', ref: '—', time: '08:12', level: '正常' }
+    ],
+    messages: [
+      { id: 1, type: '危急值', title: '检验危急值：王秀兰 血钾 6.8 mmol/L', time: '08:42', read: false },
+      { id: 2, type: '待办', title: '3 张处方待药师审核', time: '08:40', read: false },
+      { id: 3, type: '系统', title: '医保目录已更新至 2.0 版（热更新完成）', time: '08:00', read: false },
+      { id: 4, type: '待办', title: '2 名患者医保结算待确认', time: '07:58', read: true },
+      { id: 5, type: '系统', title: '病历异地备份完成（双副本）', time: '06:00', read: true }
+    ],
+    nurseTasks: [
+      { id: 'T1', bed: '12床', patient: '李建国', patientId: 'patient1', drug: '阿莫西林胶囊 0.5g', time: '08:30', route: '口服', status: '待执行' },
+      { id: 'T2', bed: '12床', patient: '李建国', patientId: 'patient1', drug: '奥美拉唑肠溶胶囊 20mg', time: '09:00', route: '口服', status: '待执行' },
+      { id: 'T3', bed: '15床', patient: '王秀兰', patientId: 'patient2', drug: '头孢克肟分散片 0.1g', time: '09:30', route: '口服', status: '待执行' },
+      { id: 'T4', bed: '18床', patient: '陈浩', patientId: 'patient3', drug: '布洛芬缓释胶囊 0.3g', time: '10:00', route: '口服', status: '待执行' }
+    ],
+    patients: [
+      { bed: '12床', name: '李建国', patientId: 'patient1', sex: '男', age: 62, diag: '冠心病 稳定型心绞痛', level: '一级护理', doctor: '张伟' },
+      { bed: '15床', name: '王秀兰', patientId: 'patient2', sex: '女', age: 45, diag: '急性上呼吸道感染', level: '二级护理', doctor: '张伟' },
+      { bed: '18床', name: '陈浩', patientId: 'patient3', sex: '男', age: 28, diag: '急性胃肠炎', level: '二级护理', doctor: '张伟' },
+      { bed: '21床', name: '赵敏', patientId: 'patient4', sex: '女', age: 51, diag: '慢性盆腔炎', level: '三级护理', doctor: '孙丽' }
+    ],
+    rounds: [
+      { time: '08:15', bed: '12床', patient: '李建国', level: '一级护理', note: '神志清，生命体征平稳，无不适主诉', nurse: '刘芳' },
+      { time: '08:45', bed: '15床', patient: '王秀兰', level: '二级护理', note: '体温 37.8℃，咳嗽较前减轻，已记录', nurse: '刘芳' }
+    ],
+    adverse: [],
+    stock: [
+      { name: '阿莫西林胶囊', qty: 1200, min: 500 },
+      { name: '阿司匹林肠溶片', qty: 320, min: 400 },
+      { name: '华法林钠片', qty: 860, min: 300 },
+      { name: '布洛芬缓释胶囊', qty: 1500, min: 600 },
+      { name: '头孢克肟分散片', qty: 240, min: 300 },
+      { name: '奥美拉唑肠溶胶囊', qty: 980, min: 400 },
+      { name: '缬沙坦胶囊', qty: 640, min: 500 }
+    ],
+    consults: [
+      { id: 'C001', patient: '王秀兰', patientId: 'patient2', question: '阿莫西林与连花清瘟能否同服？', time: '08:20', status: '待回复' },
+      { id: 'C002', patient: '陈浩', patientId: 'patient3', question: '甲硝唑服药期间能否饮酒？', time: '08:35', status: '已回复' }
+    ],
+    bills: [
+      { id: 'B20250612001', patient: '王秀兰', patientId: 'patient2', total: 186.5, ins: 130.55, self: 55.95, status: '待上传' },
+      { id: 'B20250612002', patient: '陈浩', patientId: 'patient3', total: 94.8, ins: 66.36, self: 28.44, status: '待上传' },
+      { id: 'B20250612003', patient: '赵敏', patientId: 'patient4', total: 326.0, ins: 228.20, self: 97.80, status: '已上传' },
+      { id: 'B20250612004', patient: '李建国', patientId: 'patient1', total: 48.4, ins: 33.88, self: 14.52, status: '已结算' }
+    ],
+    catalog: [
+      { code: 'XJ01', name: '阿莫西林胶囊', type: '甲类', ratio: '100%', status: '启用' },
+      { code: 'XJ02', name: '阿司匹林肠溶片', type: '甲类', ratio: '100%', status: '启用' },
+      { code: 'XJ03', name: '华法林钠片', type: '乙类', ratio: '80%', status: '启用' },
+      { code: 'XJ04', name: '布洛芬缓释胶囊', type: '乙类', ratio: '70%', status: '启用' },
+      { code: 'XJ05', name: '头孢克肟分散片', type: '乙类', ratio: '70%', status: '停用' }
+    ],
+    anomalies: [
+      { id: 'A001', bill: 'B20250612001', patient: '王秀兰', patientId: 'patient2', item: '阿莫西林胶囊', reason: '限儿童使用，与患者年龄不符', amount: 28.5, status: '待处理' },
+      { id: 'A002', bill: 'B20250612002', patient: '陈浩', patientId: 'patient3', item: '甲硝唑片', reason: '超适应症用药（无感染指征）', amount: 8.9, status: '待处理' }
+    ],
+    patientAppts: [
+      { id: 'APT001', patientId: 'patient1', dept: '内科', doctor: '张伟', date: '今天 06-12', slot: '09:00-09:30', fee: 50, status: '待就诊' },
+      { id: 'APT002', patientId: 'patient1', dept: '内科', doctor: '张伟', date: '昨天 06-11', slot: '14:00-14:30', fee: 50, status: '已完成' },
+      { id: 'APT003', patientId: 'patient2', dept: '内科', doctor: '张伟', date: '今天 06-12', slot: '08:00-08:30', fee: 50, status: '待就诊' }
+    ],
+    patientBills: [
+      { id: 'PB001', patientId: 'patient1', item: '门诊挂号费（内科 张伟）', amount: 50, status: '已支付', time: '06-12 08:05' },
+      { id: 'PB002', patientId: 'patient1', item: '药品费（阿司匹林肠溶片等）', amount: 48.4, status: '待支付', time: '06-12 09:10' }
+    ],
+    patientMessages: [
+      { type: '报告', title: '您 06-11 的检验报告已出，点击查看', time: '08:30', read: false, patientId: 'patient1' },
+      { type: '提醒', title: '您的复诊预约在今天 09:00-09:30，请提前 15 分钟到院', time: '07:50', read: false, patientId: 'patient1' }
+    ],
+    apiLogs: [
+      { name: '医保结算接口', calls: 1284, success: '99.8%', latency: '86ms', status: '正常' },
+      { name: '电子病历接口', calls: 986, success: '99.9%', latency: '42ms', status: '正常' },
+      { name: '预约挂号接口', calls: 1024, success: '100%', latency: '28ms', status: '正常' },
+      { name: '处方流转接口', calls: 874, success: '99.7%', latency: '61ms', status: '正常' },
+      { name: '消息推送接口', calls: 2560, success: '99.5%', latency: '35ms', status: '正常' }
+    ],
+    auditLogs: [
+      { time: '08:42', user: '张伟', role: '医生', action: '调阅病历', target: 'EMR2025061201', ip: '10.20.3.15' },
+      { time: '08:35', user: '陈静', role: '药师', action: '处方审核通过', target: 'RX2025061201', ip: '10.20.4.22' },
+      { time: '08:20', user: '刘芳', role: '护士', action: '扫码核对执行', target: 'T1', ip: '10.20.5.18' },
+      { time: '08:12', user: '王磊', role: '医保人员', action: '费用明细上传', target: 'B20250612003', ip: '10.20.6.30' },
+      { time: '08:00', user: 'Admin', role: '系统管理员', action: '热更新医保目录', target: 'CATALOG-2.0', ip: '10.20.1.2' }
+    ],
+    backups: [
+      { time: '06:00', type: '全量备份', size: '248 GB', location: '本地 + 异地云', status: '成功' },
+      { time: '12:00', type: '增量备份', size: '12 GB', location: '本地', status: '成功' },
+      { time: '18:00', type: '增量备份', size: '—', location: '—', status: '待执行' }
+    ]
+  };
+}
+
+function loadDB() {
+  const s = localStorage.getItem(DB_KEY);
+  if (!s) { const d = hkSeedData(); localStorage.setItem(DB_KEY, JSON.stringify(d)); return d; }
+  try { return JSON.parse(s); }
+  catch (e) { const d = hkSeedData(); localStorage.setItem(DB_KEY, JSON.stringify(d)); return d; }
+}
+function saveDB(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+function getLocalUser() { try { return JSON.parse(localStorage.getItem('hk_user') || 'null'); } catch (e) { return null; } }
+
+/* 本地接口路由（与原后端 server.js 行为一致） */
+function localApi(method, path, body) {
+  const db = loadDB();
+  const u = getLocalUser();
+  const col = k => { if (!db[k]) db[k] = []; return db[k]; };
+  const P = String(path || '').split('?')[0];
+  const b = body || {};
+  const NO = msg => ({ ok: false, msg });
+  const only = role => (u && u.role === role);
+  const logAct = (action, target) => { if (u) db.auditLogs.unshift({ time: nowFull(), user: u.name, role: u.role, action, target, ip: '127.0.0.1' }); };
+
+  /* ----- 登录 / 注册 / 会话 ----- */
+  if (P === '/api/login') {
+    const q = String(b.username || '').trim();
+    if (!q) return NO('请输入账号或姓名');
+    const x = db.users.find(v => v.username === q || v.name === q);
+    if (!x || String(b.password || '') !== String(x.pwd)) return NO('账号或密码错误');
+    return { ok: true, token: 'local-' + Date.now(), user: { username: x.username, name: x.name, role: x.role, profile: x.profile } };
+  }
+  if (P === '/api/register') {
+    if (!ROLES_ALL.includes(b.role)) return NO('请选择有效身份');
+    const nm = String(b.name || '').trim();
+    if (!nm) return NO('请输入姓名');
+    if (!b.password || String(b.password).length < 6) return NO('密码至少 6 位');
+    let uname = String(b.username || '').trim();
+    if (uname && db.users.some(v => v.username.toLowerCase() === uname.toLowerCase())) return NO('该账号已被占用，请换一个');
+    if (db.users.some(v => v.name === nm)) return NO('该姓名已被注册，请换一个');
+    if (!uname) { let i = 1; while (db.users.some(v => v.username === 'user' + i)) i++; uname = 'user' + i; }
+    db.users.push({ username: uname, name: nm, role: b.role, pwd: String(b.password), profile: { desc: b.role, avatar: nm[0] } });
+    saveDB(db);
+    return { ok: true, msg: '注册成功', username: uname, name: nm, role: b.role };
+  }
+  if (P === '/api/me') {
+    if (!u) return NO('未登录，请先登录');
+    const x = db.users.find(v => v.username === u.username);
+    if (!x) return NO('用户不存在');
+    return { ok: true, user: { username: x.username, name: x.name, role: x.role, profile: x.profile } };
+  }
+
+  /* ----- 按角色返回数据（与原后端一致） ----- */
+  if (P === '/api/data') {
+    if (!u) return NO('未登录，请先登录');
+    const d = {}; const pid = u.username; const nm = u.name;
+    if (u.role === '医生') {
+      d.queue = col('queue').filter(x => x.doctor === nm);
+      d.prescriptions = col('prescriptions').filter(x => x.doctor === nm);
+      d.records = col('records').filter(x => x.doctor === nm);
+      d.results = col('results'); d.messages = col('messages');
+    } else if (u.role === '护士') {
+      d.nurseTasks = col('nurseTasks'); d.patients = col('patients');
+      d.rounds = col('rounds'); d.adverse = col('adverse');
+    } else if (u.role === '药师') {
+      d.prescriptions = col('prescriptions'); d.stock = col('stock'); d.consults = col('consults');
+    } else if (u.role === '医保人员') {
+      d.bills = col('bills'); d.catalog = col('catalog');
+      d.anomalies = col('anomalies'); d.results = col('results');
+    } else if (u.role === '患者') {
+      d.patientAppts = col('patientAppts').filter(x => x.patientId === pid);
+      d.patientBills = col('patientBills').filter(x => x.patientId === pid);
+      d.patientMessages = col('patientMessages').filter(x => x.patientId === pid);
+      d.records = col('records').filter(x => x.patientId === pid);
+      d.results = col('results').filter(x => x.patientId === pid);
+    } else if (u.role === '系统管理员') {
+      d.apiLogs = col('apiLogs'); d.auditLogs = col('auditLogs'); d.backups = col('backups');
+      d.userStats = {
+        total: db.users.length,
+        byRole: {
+          '患者': db.users.filter(x => x.role === '患者').length,
+          '医生': db.users.filter(x => x.role === '医生').length,
+          '护士': db.users.filter(x => x.role === '护士').length,
+          '药师': db.users.filter(x => x.role === '药师').length,
+          '医保人员': db.users.filter(x => x.role === '医保人员').length,
+          '系统管理员': db.users.filter(x => x.role === '系统管理员').length
+        }
+      };
+    } else return NO('无权限访问该角色数据');
+    return { ok: true, data: d };
+  }
+
+  /* ----- 医生：提交病历（生成处方 + 费用单 + 病历） ----- */
+  if (P === '/api/emr') {
+    if (!only('医生')) return NO('无权限');
+    const q = col('queue').find(x => x.id === b.patientId);
+    if (!q) return NO('患者不存在');
+    if (b.drugs && b.drugs.length) {
+      const items = b.drugs.map(id => {
+        const dr = db.drugs.find(x => x.id === id) || {};
+        return { name: dr.name, spec: dr.spec, price: dr.price, qty: 1 };
+      });
+      col('prescriptions').unshift({ id: 'RX' + Date.now().toString().slice(-9), patient: q.name, patientId: q.patientId, doctor: u.name, doctorUser: u.username, time: nowTime(), status: '待审核', items });
+    }
+    const drugAmt = (b.drugs || []).reduce((s, id) => { const dr = db.drugs.find(x => x.id === id); return s + (dr ? dr.price : 0); }, 0);
+    const labAmt = (b.labs || []).length * 45 + (b.exams || []).length * 160;
+    const total = +(drugAmt + labAmt).toFixed(2);
+    if (total > 0) col('bills').unshift({ id: 'B' + Date.now().toString().slice(-9), patient: q.name, patientId: q.patientId, total, ins: +(total * 0.7).toFixed(2), self: +(total * 0.3).toFixed(2), status: '待上传' });
+    col('records').unshift({ id: 'EMR' + Date.now().toString().slice(-9), patient: q.name, patientId: q.patientId, sex: q.sex, age: q.age, dept: q.dept, doctor: u.name, complaint: b.complaint, diagnosis: b.diagnosis, time: nowFull(), version: 'v1.0', status: '已归档' });
+    q.status = '已接诊';
+    col('messages').unshift({ id: Date.now(), type: '待办', title: q.name + ' 的处方已流转至药房', time: nowTime(), read: false });
+    logAct('提交病历归档', 'EMR');
+    saveDB(db);
+    return { ok: true, msg: '病历已归档，处方与费用单已流转' };
+  }
+  if (P === '/api/messages/read-all') {
+    if (!only('医生')) return NO('无权限');
+    col('messages').forEach(m => m.read = true);
+    saveDB(db); return { ok: true };
+  }
+
+  /* ----- 护士 ----- */
+  if (P.startsWith('/api/nurse/verify/')) {
+    if (!only('护士')) return NO('无权限');
+    const t = col('nurseTasks').find(x => x.id === P.split('/').pop());
+    if (!t) return NO('任务不存在');
+    t.status = '已核对'; logAct('扫码核对执行', t.id); saveDB(db); return { ok: true };
+  }
+  if (P.startsWith('/api/nurse/exec/')) {
+    if (!only('护士')) return NO('无权限');
+    const t = col('nurseTasks').find(x => x.id === P.split('/').pop());
+    if (!t) return NO('任务不存在');
+    t.status = '已执行'; t.execTime = b.execTime || nowTime(); t.sign = b.sign || u.name;
+    logAct('医嘱执行', t.id); saveDB(db); return { ok: true };
+  }
+  if (P === '/api/adverse') {
+    if (!only('护士')) return NO('无权限');
+    col('adverse').unshift({ time: nowFull(), patient: b.patient || '未知患者', type: b.type || '其他', desc: b.desc || '（未填写描述）', reporter: u.name });
+    logAct('不良事件上报', 'ADV'); saveDB(db); return { ok: true };
+  }
+  if (P === '/api/rounds') {
+    if (!only('护士')) return NO('无权限');
+    const pt = col('patients').find(x => x.bed === b.bed);
+    col('rounds').unshift({ time: nowTime(), bed: b.bed, patient: b.patient, level: pt ? pt.level : '二级护理', note: b.note || '（未填写巡视记录）', nurse: u.name });
+    logAct('新增巡视记录', 'ROUND'); saveDB(db); return { ok: true };
+  }
+
+  /* ----- 药师 ----- */
+  if (P.startsWith('/api/rx/')) {
+    if (!only('药师')) return NO('无权限');
+    const x = col('prescriptions').find(v => v.id === P.split('/')[3]);
+    if (!x) return NO('处方不存在');
+    if (P.endsWith('/pass')) x.status = '已审核';
+    else if (P.endsWith('/dispense')) {
+      x.status = '已发药';
+      x.items.forEach(i => { const s = col('stock').find(v => v.name === i.name); if (s) s.qty = Math.max(0, s.qty - i.qty * 10); });
+    } else if (P.endsWith('/reject') || P.endsWith('/return')) x.status = '已退回';
+    else return NO('未知操作');
+    logAct('处方处理 ' + x.status, x.id); saveDB(db); return { ok: true };
+  }
+  if (P.startsWith('/api/consult/')) {
+    if (!only('药师')) return NO('无权限');
+    const c = col('consults').find(x => x.id === P.split('/')[3]);
+    if (!c) return NO('咨询不存在');
+    c.status = '已回复'; c.reply = b.reply || '';
+    logAct('回复用药咨询', c.id); saveDB(db); return { ok: true };
+  }
+
+  /* ----- 医保人员 ----- */
+  if (P.startsWith('/api/bill/')) {
+    if (!only('医保人员')) return NO('无权限');
+    const bill = col('bills').find(x => x.id === P.split('/')[3]);
+    if (!bill) return NO('账单不存在');
+    if (P.endsWith('/upload')) bill.status = '已上传';
+    else if (P.endsWith('/audit')) bill.status = '已审核';
+    else if (P.endsWith('/settle')) bill.status = '已结算';
+    else return NO('未知操作');
+    logAct('医保结算 ' + bill.status, bill.id); saveDB(db); return { ok: true };
+  }
+  if (P.startsWith('/api/catalog/')) {
+    if (!only('医保人员')) return NO('无权限');
+    const c = col('catalog').find(x => x.code === P.split('/')[3]);
+    if (!c) return NO('目录不存在');
+    c.status = c.status === '启用' ? '停用' : '启用';
+    logAct('目录状态切换', c.code); saveDB(db); return { ok: true, status: c.status };
+  }
+  if (P.startsWith('/api/anomaly/')) {
+    if (!only('医保人员')) return NO('无权限');
+    const a = col('anomalies').find(x => x.id === P.split('/')[3]);
+    if (!a) return NO('异常不存在');
+    a.status = P.endsWith('/pass') ? '已通过' : '已驳回';
+    saveDB(db); return { ok: true };
+  }
+
+  /* ----- 患者 ----- */
+  if (P === '/api/booking') {
+    if (!only('患者')) return NO('无权限');
+    const doc = db.doctors.find(x => x.id === b.doctorId);
+    const dep = db.departments.find(x => x.id === b.deptId);
+    if (!doc || !dep || !b.slot) return NO('请选择医生与就诊时段');
+    const appt = { id: 'APT' + Date.now().toString().slice(-5), patientId: u.username, dept: dep.name, doctor: doc.name, date: b.dateLabel, slot: b.slot, fee: doc.fee, status: '待就诊' };
+    col('patientAppts').unshift(appt);
+    col('queue').push({ id: 'P' + Date.now().toString(36), no: 'A' + (col('queue').length + 1), name: u.name, sex: '男', age: 30, dept: dep.name, doctor: doc.name, symptom: '（患者自述）新预约患者，待接诊', status: '候诊', patientId: u.username });
+    logAct('在线挂号支付', appt.id); saveDB(db);
+    return { ok: true, appt };
+  }
+  if (P.startsWith('/api/appt/')) {
+    if (!only('患者')) return NO('无权限');
+    const a = col('patientAppts').find(x => x.id === P.split('/')[3] && x.patientId === u.username);
+    if (!a) return NO('预约不存在');
+    a.status = '已取消'; saveDB(db); return { ok: true };
+  }
+  if (P.startsWith('/api/paybill/')) {
+    if (!only('患者')) return NO('无权限');
+    const bl = col('patientBills').find(x => x.id === P.split('/').pop() && x.patientId === u.username);
+    if (!bl) return NO('账单不存在');
+    bl.status = '已支付'; saveDB(db); return { ok: true };
+  }
+  if (P === '/api/pmessages/read-all') {
+    if (!only('患者')) return NO('无权限');
+    col('patientMessages').filter(x => x.patientId === u.username).forEach(m => m.read = true);
+    saveDB(db); return { ok: true };
+  }
+
+  /* ----- 系统管理员 ----- */
+  if (P === '/api/backup') {
+    if (!only('系统管理员')) return NO('无权限');
+    col('backups').unshift({ time: nowTime(), type: '手动全量备份', size: '249 GB', location: '本地 + 异地云', status: '成功' });
+    logAct('手动全量备份', 'BACKUP'); saveDB(db); return { ok: true };
+  }
+  if (P === '/api/refresh-api') {
+    if (!only('系统管理员')) return NO('无权限');
+    col('apiLogs').forEach(a => { a.calls += Math.floor(Math.random() * 30); });
+    saveDB(db); return { ok: true };
+  }
+
+  return NO('未知接口：' + P);
+}
+
+/* 统一入口：所有原有代码调用 api() 的地方不用改，内部走本地数据层 */
+async function api(method, path, body) { return localApi(method, path, body); }
+
+/* 从后端加载当前角色数据，写入 state；先清空全部角色集合，实现严格的数据隔离 */
+const DATA_KEYS = ['queue','prescriptions','records','results','messages','nurseTasks','patients','rounds','adverse','stock','consults','bills','catalog','anomalies','patientAppts','patientBills','patientMessages','apiLogs','auditLogs','backups'];
+async function loadData() {
+  const r = await api('GET', '/api/data');
+  if (!r.ok) throw new Error(r.msg);
+  DATA_KEYS.forEach(k => { state[k] = []; });   // 清空残留，防串数据
+  Object.assign(state, r.data);
+}
+
+/* 写操作：调后端 -> 落库 -> 重新拉取 -> 渲染 */
+async function persist(path, body, msg) {
+  const r = await api('POST', path, body);
+  if (!r.ok) return toast(r.msg || '操作失败', 'warn');
+  await loadData();
+  render();
+  toast(msg || '操作成功');
+}
+
+function enterApp(user) {
+  CURRENT_USER = user;
+  state.role = user.role;
+  state.route = (NAV[user.role] && NAV[user.role][0]) ? NAV[user.role][0].id : 'doc-dashboard';
+  $('#loginRoot').style.display = 'none';
+  $('#appRoot').style.display = 'flex';
+  $('#uName').textContent = user.name;
+  $('#uRole').textContent = (user.profile && user.profile.desc) || user.role;
+  $('#uAvatar').textContent = (user.profile && user.profile.avatar) || user.name[0];
+  renderNav();
+  loadData().then(() => { render(); toast('已登录：' + user.role + ' · ' + user.name); })
+            .catch(e => toast(e.message, 'warn'));
+}
+
+/* 登录 / 注册 切换 */
+function showReg() { $('#loginBox').style.display = 'none'; $('#regBox').style.display = 'block'; }
+function showLogin() { $('#loginBox').style.display = 'block'; $('#regBox').style.display = 'none'; }
+$('#toReg').addEventListener('click', showReg);
+$('#toLogin').addEventListener('click', showLogin);
+
+/* 注册新账号 */
+async function doRegister() {
+  const role = $('#regRole').value;
+  if (!role) return toast('请选择身份', 'warn');
+  const name = $('#regName').value.trim();
+  const username = $('#regUser').value.trim();
+  const password = $('#regPass').value;
+  const password2 = $('#regPass2').value;
+  if (!name) return toast('请输入姓名', 'warn');
+  if (!password || password.length < 6) return toast('密码至少 6 位', 'warn');
+  if (password !== password2) return toast('两次密码不一致', 'warn');
+  const r = await api('POST', '/api/register', { username, name, password, role });
+  if (!r.ok) return toast(r.msg || '注册失败', 'warn');
+  toast('注册成功，账号：' + r.username, 'ok');
+  showLogin();
+  $('#loginRole').value = role;
+  $('#loginUser').value = r.username;
+  $('#loginPass').value = '';
+  $('#regUser').value = ''; $('#regName').value = ''; $('#regPass').value = ''; $('#regPass2').value = '';
+}
+$('#regBtn').addEventListener('click', doRegister);
+$('#regPass2').addEventListener('keydown', e => { if (e.key === 'Enter') doRegister(); });
+
+async function doLogin() {
+  const role = $('#loginRole').value;
+  if (!role) return toast('请先选择身份', 'warn');
+  const username = $('#loginUser').value.trim();
+  const password = $('#loginPass').value;
+  if (!username || !password) return toast('请输入账号和密码', 'warn');
+  const r = await api('POST', '/api/login', { username, password });
+  if (!r.ok) return toast(r.msg || '登录失败', 'warn');
+  if (r.user.role !== role) return toast('该账号不是「' + role + '」，请选择正确身份', 'warn');
+  localStorage.setItem('hk_token', r.token);
+  localStorage.setItem('hk_user', JSON.stringify(r.user));
+  enterApp(r.user);
+}
+
+function logout() {
+  localStorage.removeItem('hk_token');
+  localStorage.removeItem('hk_user');
+  CURRENT_USER = null;
+  $('#appRoot').style.display = 'none';
+  $('#loginRoot').style.display = 'flex';
+  $('#loginUser').value = ''; $('#loginPass').value = '';
+  toast('已退出登录');
+}
+
+/* 启动：有 token 则恢复会话，否则显示登录页 */
+async function boot() {
+  const token = localStorage.getItem('hk_token');
+  if (!token) { $('#loginRoot').style.display = 'flex'; return; }
+  const r = await api('GET', '/api/me');
+  if (!r.ok) { localStorage.removeItem('hk_token'); $('#loginRoot').style.display = 'flex'; return; }
+  enterApp(r.user);
+}
+</script>
+<script>
+/* =========================================================
+   基础工具
+   ========================================================= */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const nowTime = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const nowFull = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${nowTime()}`; };
+const tagFor = lv => lv === '危急' ? 't-danger' : lv === '异常' ? 't-warn' : lv === '待审核' ? 't-warn'
+  : lv === '已审核' ? 't-info' : lv === '已发药' ? 't-ok' : 't-gray';
+
+function toast(msg, type = 'ok') {
+  const wrap = $('#toasts');
+  const d = document.createElement('div');
+  d.className = 'toast ' + (type === 'ok' ? '' : type);
+  d.innerHTML = `<span>${type === 'ok' ? '✓' : type === 'warn' ? '!' : '✕'}</span><div>${esc(msg)}</div>`;
+  wrap.appendChild(d);
+  setTimeout(() => { d.style.transition = '.3s'; d.style.opacity = 0; d.style.transform = 'translateX(20px)'; setTimeout(() => d.remove(), 300); }, 2800);
+}
+function openModal(html) { $('#modalRoot').innerHTML = `<div class="modal-mask" data-act="modal-close"><div class="modal" data-stop="1">${html}</div></div>`; }
+function closeModal() { $('#modalRoot').innerHTML = ''; }
+
+/* =========================================================
+   角色定义
+   ========================================================= */
+const ROLES = {
+  '医生':       { name:'张伟',   desc:'主任医师 · 内科',    avatar:'张' },
+  '护士':       { name:'刘芳',   desc:'主管护师 · 内科病区', avatar:'刘' },
+  '药师':       { name:'陈静',   desc:'主管药师 · 门诊药房', avatar:'陈' },
+  '医保人员':   { name:'王磊',   desc:'医保办 · 审核员',    avatar:'王' },
+  '患者':       { name:'李建国', desc:'患者 · 男 62岁',     avatar:'李' },
+  '系统管理员': { name:'Admin',  desc:'系统管理员',        avatar:'A' },
+};
+
+/* 按角色划分的导航 */
+const NAV = {
+  '医生': [
+    { id:'doc-dashboard', ico:'台', label:'工作台' },
+    { id:'doc-clinic',    ico:'诊', label:'接诊工作台' },
+    { id:'doc-results',   ico:'检', label:'检验检查' },
+    { id:'doc-emr',       ico:'历', label:'病历调阅' },
+    { id:'doc-messages',  ico:'信', label:'消息中心' },
+  ],
+  '护士': [
+    { id:'nur-dashboard', ico:'台', label:'护理工作台' },
+    { id:'nur-exec',      ico:'执', label:'治疗执行' },
+    { id:'nur-round',     ico:'巡', label:'巡视记录' },
+    { id:'nur-adverse',   ico:'报', label:'不良事件' },
+    { id:'nur-patients',  ico:'床', label:'患者床位' },
+  ],
+  '药师': [
+    { id:'pha-dashboard', ico:'台', label:'药房工作台' },
+    { id:'pha-review',    ico:'审', label:'处方审核' },
+    { id:'pha-dispense',  ico:'发', label:'发药退药' },
+    { id:'pha-stock',     ico:'库', label:'药品库存' },
+    { id:'pha-consult',   ico:'询', label:'用药咨询' },
+  ],
+  '医保人员': [
+    { id:'ins-dashboard', ico:'台', label:'医保工作台' },
+    { id:'ins-settle',    ico:'结', label:'医保结算' },
+    { id:'ins-catalog',   ico:'目', label:'目录维护' },
+    { id:'ins-audit',     ico:'审', label:'异常审核' },
+    { id:'ins-report',    ico:'报', label:'结算报表' },
+  ],
+  '患者': [
+    { id:'pat-home',   ico:'首', label:'首页' },
+    { id:'pat-book',   ico:'挂', label:'在线挂号' },
+    { id:'pat-appts',  ico:'约', label:'我的预约' },
+    { id:'pat-bills',  ico:'费', label:'我的缴费' },
+    { id:'pat-emr',    ico:'历', label:'我的病历' },
+    { id:'pat-online', ico:'诊', label:'在线复诊' },
+  ],
+  '系统管理员': [
+    { id:'adm-dashboard', ico:'台', label:'系统概览' },
+    { id:'adm-rbac',      ico:'权', label:'角色权限' },
+    { id:'adm-backup',    ico:'备', label:'数据备份' },
+    { id:'adm-audit',     ico:'审', label:'日志审计' },
+    { id:'adm-api',       ico:'监', label:'接口监控' },
+  ],
+};
+
+/* =========================================================
+   数据层
+   ========================================================= */
+const DEPTS = [
+  { id:'nk', name:'内科', icon:'内' }, { id:'wk', name:'外科', icon:'外' },
+  { id:'ek', name:'儿科', icon:'儿' }, { id:'fk', name:'妇科', icon:'妇' },
+  { id:'gk', name:'骨科', icon:'骨' }, { id:'yyk', name:'眼科', icon:'眼' },
+];
+const DOCTORS = [
+  { id:'D1', name:'张伟', title:'主任医师',   dept:'nk',  fee:50, rating:4.9 },
+  { id:'D2', name:'李敏', title:'副主任医师', dept:'nk',  fee:30, rating:4.8 },
+  { id:'D3', name:'王强', title:'主任医师',   dept:'wk',  fee:50, rating:4.7 },
+  { id:'D4', name:'赵晓', title:'主治医师',   dept:'ek',  fee:20, rating:4.9 },
+  { id:'D5', name:'孙丽', title:'副主任医师', dept:'fk',  fee:30, rating:4.8 },
+  { id:'D6', name:'周涛', title:'主任医师',   dept:'gk',  fee:50, rating:4.6 },
+  { id:'D7', name:'吴敏', title:'主治医师',   dept:'yyk', fee:20, rating:4.7 },
+];
+const SLOTS = ['08:00-08:30','08:30-09:00','09:00-09:30','09:30-10:00','10:00-10:30',
+               '10:30-11:00','14:00-14:30','14:30-15:00','15:00-15:30','15:30-16:00'];
+const DRUGS = [
+  { id:'d1', name:'阿莫西林胶囊',     spec:'0.5g×24粒',  price:28.5 },
+  { id:'d2', name:'阿司匹林肠溶片',   spec:'100mg×30片', price:15.8 },
+  { id:'d3', name:'华法林钠片',       spec:'2.5mg×60片', price:22.0 },
+  { id:'d4', name:'布洛芬缓释胶囊',   spec:'0.3g×20粒',  price:18.6 },
+  { id:'d5', name:'头孢克肟分散片',   spec:'0.1g×12片',  price:32.4 },
+  { id:'d6', name:'甲硝唑片',         spec:'0.2g×100片', price:8.9  },
+  { id:'d7', name:'奥美拉唑肠溶胶囊', spec:'20mg×14粒',  price:36.0 },
+  { id:'d8', name:'缬沙坦胶囊',       spec:'80mg×7粒',   price:24.5 },
+  { id:'d9', name:'连花清瘟胶囊',     spec:'0.35g×24粒', price:19.9 },
+];
+const LABS  = ['血常规','尿常规','肝功能','肾功能','电解质','心肌酶谱','凝血功能'];
+const EXAMS = ['心电图','胸部DR','腹部彩超','头颅CT','心脏彩超'];
+const TEMPLATES = {
+  uri: { name:'上呼吸道感染', complaint:'发热、咳嗽、咽痛3天', history:'受凉后出现发热，最高体温38.5℃，伴咳嗽、咽痛，无呼吸困难。', diagnosis:'急性上呼吸道感染', labs:['血常规'], exams:[], drugs:['d9','d1'] },
+  htn: { name:'高血压随访',   complaint:'头晕1周，血压控制不佳', history:'高血压病史8年，规律服用缬沙坦，近期血压波动于150/95mmHg。', diagnosis:'原发性高血压2级', labs:['肾功能','电解质'], exams:['心电图'], drugs:['d8'] },
+  gi:  { name:'急性胃肠炎',   complaint:'腹痛、腹泻1天', history:'进食不洁食物后出现腹痛、腹泻，每日5-6次，水样便，无脓血。', diagnosis:'急性胃肠炎', labs:['血常规','电解质'], exams:[], drugs:['d6','d7'] },
+};
+
+const state = {
+  role: '医生',
+  route: 'doc-dashboard',
+  booking: { dept:null, doctor:null, dateIdx:0, slot:null },
+  lastAppt: null,
+  activePatient: 'P001',
+  queue: [
+    { id:'P001', no:'A001', name:'李建国', sex:'男', age:62, dept:'内科', doctor:'张伟', symptom:'反复胸闷3天', status:'候诊' },
+    { id:'P002', no:'A002', name:'王秀兰', sex:'女', age:45, dept:'内科', doctor:'张伟', symptom:'咳嗽伴发热2天', status:'候诊' },
+    { id:'P003', no:'A003', name:'陈浩',   sex:'男', age:28, dept:'内科', doctor:'张伟', symptom:'腹痛腹泻1天', status:'候诊' },
+  ],
+  forms: {},
+  prescriptions: [
+    { id:'RX2025061201', patient:'王秀兰', doctor:'张伟', time:'08:12', status:'待审核',
+      items:[{name:'阿莫西林胶囊',spec:'0.5g×24粒',price:28.5,qty:1},{name:'连花清瘟胶囊',spec:'0.35g×24粒',price:19.9,qty:1}] },
+    { id:'RX2025061202', patient:'陈浩', doctor:'张伟', time:'08:35', status:'待审核',
+      items:[{name:'甲硝唑片',spec:'0.2g×100片',price:8.9,qty:1},{name:'奥美拉唑肠溶胶囊',spec:'20mg×14粒',price:36.0,qty:1}] },
+    { id:'RX2025061203', patient:'赵敏', doctor:'孙丽', time:'08:50', status:'已审核',
+      items:[{name:'缬沙坦胶囊',spec:'80mg×7粒',price:24.5,qty:2}] },
+    { id:'RX2025061204', patient:'李建国', doctor:'张伟', time:'09:02', status:'已发药',
+      items:[{name:'阿司匹林肠溶片',spec:'100mg×30片',price:15.8,qty:1}] },
+  ],
+  bills: [
+    { id:'B20250612001', patient:'王秀兰', total:186.5, ins:130.55, self:55.95, status:'待上传' },
+    { id:'B20250612002', patient:'陈浩',   total:94.8,  ins:66.36,  self:28.44, status:'待上传' },
+    { id:'B20250612003', patient:'赵敏',   total:326.0, ins:228.20, self:97.80, status:'已上传' },
+    { id:'B20250612004', patient:'李建国', total:48.4,  ins:33.88,  self:14.52, status:'已结算' },
+  ],
+  records: [
+    { id:'EMR2025061201', patient:'王秀兰', sex:'女', age:45, dept:'内科', doctor:'张伟',
+      complaint:'咳嗽伴发热2天', diagnosis:'急性上呼吸道感染', time:'2025-06-12 08:10', version:'v1.2', status:'已归档' },
+    { id:'EMR2025061202', patient:'陈浩', sex:'男', age:28, dept:'内科', doctor:'张伟',
+      complaint:'腹痛腹泻1天', diagnosis:'急性胃肠炎', time:'2025-06-12 08:32', version:'v1.0', status:'已归档' },
+    { id:'EMR2025061103', patient:'赵敏', sex:'女', age:51, dept:'妇科', doctor:'孙丽',
+      complaint:'下腹坠胀1周', diagnosis:'慢性盆腔炎', time:'2025-06-11 15:20', version:'v2.0', status:'已归档' },
+    { id:'EMR2025061101', patient:'李建国', sex:'男', age:62, dept:'内科', doctor:'张伟',
+      complaint:'反复胸闷3天', diagnosis:'冠心病 稳定型心绞痛', time:'2025-06-11 14:10', version:'v1.1', status:'已归档' },
+  ],
+  nurseTasks: [
+    { id:'T1', bed:'12床', patient:'李建国', drug:'阿莫西林胶囊 0.5g',     time:'08:30', route:'口服', status:'待执行' },
+    { id:'T2', bed:'12床', patient:'李建国', drug:'奥美拉唑肠溶胶囊 20mg', time:'09:00', route:'口服', status:'待执行' },
+    { id:'T3', bed:'15床', patient:'王秀兰', drug:'头孢克肟分散片 0.1g',    time:'09:30', route:'口服', status:'待执行' },
+    { id:'T4', bed:'18床', patient:'陈浩',   drug:'布洛芬缓释胶囊 0.3g',    time:'10:00', route:'口服', status:'待执行' },
+  ],
+  patients: [
+    { bed:'12床', name:'李建国', sex:'男', age:62, diag:'冠心病 稳定型心绞痛', level:'一级护理', doctor:'张伟' },
+    { bed:'15床', name:'王秀兰', sex:'女', age:45, diag:'急性上呼吸道感染',   level:'二级护理', doctor:'张伟' },
+    { bed:'18床', name:'陈浩',   sex:'男', age:28, diag:'急性胃肠炎',         level:'二级护理', doctor:'张伟' },
+    { bed:'21床', name:'赵敏',   sex:'女', age:51, diag:'慢性盆腔炎',         level:'三级护理', doctor:'孙丽' },
+  ],
+  rounds: [
+    { time:'08:15', bed:'12床', patient:'李建国', level:'一级护理', note:'神志清，生命体征平稳，无不适主诉', nurse:'刘芳' },
+    { time:'08:45', bed:'15床', patient:'王秀兰', level:'二级护理', note:'体温 37.8℃，咳嗽较前减轻，已记录', nurse:'刘芳' },
+  ],
+  adverse: [],
+  stock: [
+    { name:'阿莫西林胶囊',     qty:1200, min:500 },
+    { name:'阿司匹林肠溶片',   qty:320,  min:400 },
+    { name:'华法林钠片',       qty:860,  min:300 },
+    { name:'布洛芬缓释胶囊',   qty:1500, min:600 },
+    { name:'头孢克肟分散片',   qty:240,  min:300 },
+    { name:'奥美拉唑肠溶胶囊', qty:980,  min:400 },
+    { name:'缬沙坦胶囊',       qty:640,  min:500 },
+  ],
+  consults: [
+    { id:'C001', patient:'王秀兰', question:'阿莫西林与连花清瘟能否同服？', time:'08:20', status:'待回复' },
+    { id:'C002', patient:'陈浩',   question:'甲硝唑服药期间能否饮酒？',     time:'08:35', status:'已回复' },
+  ],
+  catalog: [
+    { code:'XJ01', name:'阿莫西林胶囊',   type:'甲类', ratio:'100%', status:'启用' },
+    { code:'XJ02', name:'阿司匹林肠溶片', type:'甲类', ratio:'100%', status:'启用' },
+    { code:'XJ03', name:'华法林钠片',     type:'乙类', ratio:'80%',  status:'启用' },
+    { code:'XJ04', name:'布洛芬缓释胶囊', type:'乙类', ratio:'70%',  status:'启用' },
+    { code:'XJ05', name:'头孢克肟分散片', type:'乙类', ratio:'70%',  status:'停用' },
+  ],
+  anomalies: [
+    { id:'A001', bill:'B20250612001', patient:'王秀兰', item:'阿莫西林胶囊', reason:'限儿童使用，与患者年龄不符', amount:28.5, status:'待处理' },
+    { id:'A002', bill:'B20250612002', patient:'陈浩',   item:'甲硝唑片',     reason:'超适应症用药（无感染指征）',   amount:8.9,  status:'待处理' },
+  ],
+  results: [
+    { patient:'王秀兰', item:'血钾',       value:'6.8 mmol/L',  ref:'3.5-5.5',  time:'08:40', level:'危急' },
+    { patient:'王秀兰', item:'C反应蛋白',  value:'28 mg/L',     ref:'<10',      time:'08:40', level:'异常' },
+    { patient:'陈浩',   item:'白细胞计数', value:'12.6×10⁹/L',  ref:'4.0-10.0', time:'08:25', level:'异常' },
+    { patient:'李建国', item:'肌钙蛋白I',  value:'0.02 ng/mL',  ref:'<0.04',    time:'08:10', level:'正常' },
+    { patient:'李建国', item:'心电图',     value:'窦性心律',    ref:'—',        time:'08:12', level:'正常' },
+  ],
+  patientAppts: [
+    { id:'APT001', dept:'内科', doctor:'张伟', date:'今天 06-12', slot:'09:00-09:30', fee:50, status:'待就诊' },
+    { id:'APT002', dept:'内科', doctor:'张伟', date:'昨天 06-11', slot:'14:00-14:30', fee:50, status:'已完成' },
+  ],
+  patientBills: [
+    { id:'PB001', item:'门诊挂号费（内科 张伟）', amount:50,   status:'已支付', time:'06-12 08:05' },
+    { id:'PB002', item:'药品费（阿司匹林肠溶片等）', amount:48.4, status:'待支付', time:'06-12 09:10' },
+  ],
+  patientMessages: [
+    { type:'报告', title:'您 06-11 的检验报告已出，点击查看', time:'08:30', read:false },
+    { type:'提醒', title:'您的复诊预约在今天 09:00-09:30，请提前 15 分钟到院', time:'07:50', read:false },
+  ],
+  messages: [
+    { id:1, type:'危急值', title:'检验危急值：王秀兰 血钾 6.8 mmol/L', time:'08:42', read:false },
+    { id:2, type:'待办',   title:'3 张处方待药师审核', time:'08:40', read:false },
+    { id:3, type:'系统',   title:'医保目录已更新至 2.0 版（热更新完成）', time:'08:00', read:false },
+    { id:4, type:'待办',   title:'2 名患者医保结算待确认', time:'07:58', read:true },
+    { id:5, type:'系统',   title:'病历异地备份完成（双副本）', time:'06:00', read:true },
+  ],
+  apiLogs: [
+    { name:'医保结算接口', calls:1284, success:'99.8%', latency:'86ms', status:'正常' },
+    { name:'电子病历接口', calls:986,  success:'99.9%', latency:'42ms', status:'正常' },
+    { name:'预约挂号接口', calls:1024, success:'100%',  latency:'28ms', status:'正常' },
+    { name:'处方流转接口', calls:874,  success:'99.7%', latency:'61ms', status:'正常' },
+    { name:'消息推送接口', calls:2560, success:'99.5%', latency:'35ms', status:'正常' },
+  ],
+  auditLogs: [
+    { time:'08:42', user:'张伟', role:'医生',     action:'调阅病历',       target:'EMR2025061201', ip:'10.20.3.15' },
+    { time:'08:35', user:'陈静', role:'药师',     action:'处方审核通过',   target:'RX2025061201',  ip:'10.20.4.22' },
+    { time:'08:20', user:'刘芳', role:'护士',     action:'扫码核对执行',   target:'T1',            ip:'10.20.5.18' },
+    { time:'08:12', user:'王磊', role:'医保人员', action:'费用明细上传',   target:'B20250612003',  ip:'10.20.6.30' },
+    { time:'08:00', user:'Admin', role:'系统管理员', action:'热更新医保目录', target:'CATALOG-2.0',   ip:'10.20.1.2' },
+  ],
+  backups: [
+    { time:'06:00', type:'全量备份', size:'248 GB', location:'本地 + 异地云', status:'成功' },
+    { time:'12:00', type:'增量备份', size:'12 GB',  location:'本地',          status:'成功' },
+    { time:'18:00', type:'增量备份', size:'—',      location:'—',             status:'待执行' },
+  ],
+};
+
+/* =========================================================
+   业务辅助
+   ========================================================= */
+function dateLabels() {
+  const w = ['周日','周一','周二','周三','周四','周五','周六'];
+  return [0,1,2].map(i => {
+    const d = new Date(); d.setDate(d.getDate() + i);
+    return { key:`${d.getFullYear()}${d.getMonth()+1}${d.getDate()}`,
+             label:`${i===0?'今天':i===1?'明天':'后天'} ${d.getMonth()+1}-${d.getDate()} ${w[d.getDay()]}` };
+  });
+}
+function slotRemain(docId, dateKey, slot) {
+  let h = 0; const s = docId + dateKey + slot;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 1009;
+  return h % 4;
+}
+function getForm(id) {
+  if (!state.forms[id]) state.forms[id] = { complaint:'', history:'', diagnosis:'', labs:[], exams:[], drugs:[], submitted:false };
+  return state.forms[id];
+}
+function drugWarnings(ids, patient) {
+  const has = id => ids.includes(id);
+  const w = [];
+  if (has('d3') && has('d2')) w.push({ level:'严重', msg:'华法林钠片 + 阿司匹林肠溶片：显著增加出血风险，建议避免联用' });
+  if (has('d3') && has('d4')) w.push({ level:'严重', msg:'华法林钠片 + 布洛芬：NSAIDs 可增强抗凝作用，出血风险升高' });
+  if (has('d1') && has('d6')) w.push({ level:'提示', msg:'阿莫西林 + 甲硝唑：注意胃肠道反应与二重感染风险' });
+  if (has('d5') && has('d6')) w.push({ level:'提示', msg:'头孢克肟 + 甲硝唑：抗菌谱部分重叠，建议评估联用必要性' });
+  if (patient && patient.age >= 65 && has('d4')) w.push({ level:'提示', msg:'老年患者（≥65岁）使用布洛芬需评估肾功能与消化道出血风险' });
+  return w;
+}
+function qrHtml(seed) {
+  let h = 7;
+  for (const c of seed) h = (h * 33 + c.charCodeAt(0)) % 2147483647;
+  let cells = '';
+  for (let i = 0; i < 121; i++) {
+    h = (h * 1103515245 + 12345) % 2147483648;
+    const on = (h >> 9) % 2 === 0;
+    cells += `<i style="background:${on ? '#10261a' : '#ffffff'}"></i>`;
+  }
+  return `<div class="qr">${cells}</div>`;
+}
+const statusTag = s => {
+  const map = {
+    '待审核':'t-warn','已审核':'t-info','已发药':'t-ok','已退回':'t-danger',
+    '待上传':'t-warn','已上传':'t-info','已结算':'t-ok',
+    '待执行':'t-warn','已核对':'t-info','已执行':'t-ok',
+    '候诊':'t-warn','已接诊':'t-ok','已归档':'t-ok',
+    '待就诊':'t-warn','已完成':'t-ok','已取消':'t-gray',
+    '已支付':'t-ok','待支付':'t-warn',
+    '待处理':'t-warn','已通过':'t-ok','已驳回':'t-danger',
+    '启用':'t-ok','停用':'t-gray',
+    '成功':'t-ok','待执行':'t-warn','正常':'t-ok','告警':'t-danger',
+  };
+  return `<span class="tag ${map[s] || 't-gray'}">${s}</span>`;
+};
+
+/* =========================================================
+   ========== 医生角色视图 ==========
+   ========================================================= */
+function viewDocDashboard() {
+  const waiting = state.queue.filter(p => p.status === '候诊');
+  const critical = state.messages.filter(m => m.type === '危急值');
+  const myRx = state.prescriptions.filter(p => p.doctor === '张伟');
+
+  return `
+  <div class="page-head">
+    <div><h2>医生工作台</h2><p>张伟 · 主任医师 · 内科　|　${nowFull().slice(0,10)}</p></div>
+    <button class="btn btn-primary" data-act="nav" data-id="doc-clinic">开始接诊</button>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:16px">
+    <div class="kpi"><div class="kpi-l">今日接诊</div><div class="kpi-v">28<small>人次</small></div><div class="kpi-sub">目标 ≤40 人次/日</div></div>
+    <div class="kpi"><div class="kpi-l">候诊人数</div><div class="kpi-v">${waiting.length}<small>人</small></div><div class="kpi-sub">平均等候 ${waiting.length ? 8 : 0} 分钟</div></div>
+    <div class="kpi"><div class="kpi-l">今日开单</div><div class="kpi-v">${myRx.length}<small>张</small></div><div class="kpi-sub">电子处方覆盖率 100%</div></div>
+    <div class="kpi"><div class="kpi-l">危急值待阅</div><div class="kpi-v" style="color:var(--danger)">${critical.length}<small>条</small></div><div class="kpi-sub">5 秒内推送至医生端</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-h">待接诊队列 <span class="badge">${waiting.length}</span></div>
+      ${waiting.length ? waiting.map(p => `
+        <div class="q-item" data-act="select-patient" data-id="${p.id}" data-goto="doc-clinic">
+          <div class="q-no">${p.no}</div>
+          <div class="q-info">
+            <div class="q-name">${p.name}<span class="muted">${p.sex} · ${p.age}岁</span></div>
+            <div class="q-sym">${esc(p.symptom)}</div>
+          </div>
+          ${statusTag(p.status)}
+        </div>`).join('') : '<div class="muted">暂无候诊患者</div>'}
+    </div>
+    <div class="card">
+      <div class="card-h">危急值与提醒 <span class="badge" style="background:#fbe0de;color:var(--danger)">${critical.length}</span></div>
+      ${critical.map(m => `<div class="alert alert-danger"><b>[危急值]</b><span>${esc(m.title)}</span></div>`).join('')}
+      ${state.messages.filter(m => m.type !== '危急值' && !m.read).slice(0,3)
+        .map(m => `<div class="alert alert-warn"><b>[${m.type}]</b><span>${esc(m.title)}</span></div>`).join('')
+        || (critical.length ? '' : '<div class="muted">暂无其他提醒</div>')}
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-h">我的今日处方 <span class="spacer"></span>
+      <button class="btn btn-sm" data-act="nav" data-id="doc-clinic">＋ 开处方</button>
+    </div>
+    <table>
+      <thead><tr><th>处方号</th><th>患者</th><th>药品</th><th>金额</th><th>状态</th><th>时间</th></tr></thead>
+      <tbody>
+        ${myRx.map(p => {
+          const total = p.items.reduce((s, i) => s + i.price * i.qty, 0);
+          return `<tr>
+            <td class="mono" style="font-size:12px">${p.id}</td>
+            <td>${p.patient}</td>
+            <td style="font-size:12.5px">${p.items.map(i => i.name).join('、')}</td>
+            <td><b>¥${total.toFixed(2)}</b></td>
+            <td>${statusTag(p.status)}</td>
+            <td class="muted">${p.time}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function viewDocClinic() {
+  const queue = state.queue;
+  if (!queue.length) return `<div class="card"><div class="card-h">接诊工作台</div><div class="muted">暂无候诊患者</div></div>`;
+  if (!queue.find(p => p.id === state.activePatient)) state.activePatient = queue[0].id;
+  const p = queue.find(x => x.id === state.activePatient);
+  const f = getForm(p.id);
+  const warns = drugWarnings(f.drugs, p);
+  const hasSevere = warns.some(w => w.level === '严重');
+
+  return `
+  <div class="page-head">
+    <div><h2>接诊工作台</h2><p>电子病历录入 · 检验检查开单 · 处方开立 · 合理用药预警</p></div>
+    <div class="muted">接诊医生：张伟 主任医师 · 内科</div>
+  </div>
+
+  <div class="split">
+    <div class="card">
+      <div class="card-h">候诊队列 <span class="badge">${queue.filter(x => x.status === '候诊').length}</span></div>
+      <div class="queue-list">
+        ${queue.map(x => `
+          <div class="q-item ${x.id === p.id ? 'active' : ''}" data-act="select-patient" data-id="${x.id}">
+            <div class="q-no">${x.no}</div>
+            <div class="q-info">
+              <div class="q-name">${x.name}<span class="muted">${x.sex} · ${x.age}岁</span></div>
+              <div class="q-sym">${esc(x.symptom)}</div>
+            </div>
+            ${statusTag(x.status)}
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="patient-hd">
+        <div class="avatar" style="width:44px;height:44px;font-size:16px">${p.name[0]}</div>
+        <div>
+          <div class="pn">${p.name} <span class="muted">${p.sex} · ${p.age}岁 · 病历号 ${p.id}</span></div>
+          <div class="muted" style="margin-top:4px">主诉：${esc(p.symptom)}　|　就诊科室：${p.dept}</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+          <span class="tag t-info">${p.no}</span>
+          ${statusTag(p.status)}
+        </div>
+      </div>
+
+      <div class="card-h" style="margin-bottom:12px">
+        电子病历
+        <span class="spacer"></span>
+        <span class="muted" style="margin-right:6px">引用模板：</span>
+        ${Object.entries(TEMPLATES).map(([k, t]) =>
+          `<button class="btn btn-sm btn-ghost" data-act="tpl" data-id="${k}" style="margin-left:6px">${t.name}</button>`).join('')}
+      </div>
+
+      <div class="grid-2" style="gap:14px">
+        <div class="field">
+          <label>主诉 <span style="color:var(--danger)">*</span></label>
+          <textarea data-form="${p.id}" data-field="complaint" placeholder="例如：发热、咳嗽、咽痛3天">${esc(f.complaint)}</textarea>
+        </div>
+        <div class="field">
+          <label>现病史</label>
+          <textarea data-form="${p.id}" data-field="history" placeholder="起病时间、症状演变、诊疗经过">${esc(f.history)}</textarea>
+        </div>
+      </div>
+      <div class="field">
+        <label>初步诊断 <span style="color:var(--danger)">*</span></label>
+        <input data-form="${p.id}" data-field="diagnosis" value="${esc(f.diagnosis)}" placeholder="例如：急性上呼吸道感染">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px">
+        <div>
+          <label style="font-size:12.5px;color:var(--muted);font-weight:700;display:block;margin-bottom:8px">检验开单</label>
+          <div class="chk-grid" style="grid-template-columns:1fr 1fr">
+            ${LABS.map(l => `
+              <div class="chk ${f.labs.includes(l) ? 'on' : ''}" data-act="toggle-lab" data-id="${l}">
+                <span class="box">${f.labs.includes(l) ? '✓' : ''}</span>${l}
+              </div>`).join('')}
+          </div>
+        </div>
+        <div>
+          <label style="font-size:12.5px;color:var(--muted);font-weight:700;display:block;margin-bottom:8px">检查开单</label>
+          <div class="chk-grid" style="grid-template-columns:1fr 1fr">
+            ${EXAMS.map(l => `
+              <div class="chk ${f.exams.includes(l) ? 'on' : ''}" data-act="toggle-exam" data-id="${l}">
+                <span class="box">${f.exams.includes(l) ? '✓' : ''}</span>${l}
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px">
+        <label style="font-size:12.5px;color:var(--muted);font-weight:700;display:block;margin-bottom:8px">处方开立（西药 / 中成药）</label>
+        <div class="chk-grid">
+          ${DRUGS.map(d => `
+            <div class="chk ${f.drugs.includes(d.id) ? 'on' : ''}" data-act="toggle-drug" data-id="${d.id}">
+              <span class="box">${f.drugs.includes(d.id) ? '✓' : ''}</span>
+              <span>${d.name}</span>
+              <span class="pr">¥${d.price.toFixed(1)}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div style="margin-top:14px">
+        ${warns.length
+          ? warns.map(w => `<div class="alert ${w.level === '严重' ? 'alert-danger' : 'alert-warn'}">
+              <b>[${w.level}]</b><span>${w.msg}</span></div>`).join('')
+          : '<div class="alert alert-ok"><b>[✓]</b><span>合理用药校验通过，未发现配伍禁忌与剂量异常</span></div>'}
+      </div>
+
+      <div class="form-actions">
+        <button class="btn" data-act="nav" data-id="doc-emr">查看历史病历</button>
+        <button class="btn btn-primary" data-act="submit-emr" ${f.submitted ? 'disabled' : ''}>
+          ${f.submitted ? '已提交归档' : (hasSevere ? '存在严重预警，确认后提交' : '提交并归档')}
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function viewDocResults() {
+  return `
+  <div class="page-head">
+    <div><h2>检验检查结果</h2><p>危急值 5 秒内推送至医生端 · 异常结果重点提示</p></div>
+    <div class="muted">数据来自 LIS / PACS 接口</div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:16px">
+    <div class="kpi"><div class="kpi-l">今日报告</div><div class="kpi-v">42<small>份</small></div><div class="kpi-sub">检验 30 · 检查 12</div></div>
+    <div class="kpi"><div class="kpi-l">危急值</div><div class="kpi-v" style="color:var(--danger)">1<small>条</small></div><div class="kpi-sub">已推送 08:42</div></div>
+    <div class="kpi"><div class="kpi-l">异常结果</div><div class="kpi-v" style="color:var(--warn)">2<small>条</small></div><div class="kpi-sub">需重点关注</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">结果列表</div>
+    <table>
+      <thead><tr><th>患者</th><th>项目</th><th>结果值</th><th>参考范围</th><th>时间</th><th>级别</th><th style="text-align:right">操作</th></tr></thead>
+      <tbody>
+        ${state.results.map((r, i) => `
+          <tr>
+            <td><b>${r.patient}</b></td>
+            <td>${r.item}</td>
+            <td><b style="color:${r.level==='危急'?'var(--danger)':r.level==='异常'?'var(--warn)':'var(--ink)'}">${r.value}</b></td>
+            <td class="muted">${r.ref}</td>
+            <td class="muted">${r.time}</td>
+            <td><span class="tag ${tagFor(r.level)}">${r.level}</span></td>
+            <td style="text-align:right">
+              <button class="btn btn-sm" data-act="view-result" data-idx="${i}">查看报告</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function viewDocEMR() {
+  return `
+  <div class="page-head">
+    <div><h2>病历调阅</h2><p>跨科室调阅 ≤3 秒 · 国密加密 · 双副本备份 ≥15 年</p></div>
+    <div class="muted">今日调阅 46 次</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">病历检索
+      <span class="spacer"></span>
+      <input id="emrSearch" placeholder="搜索患者姓名 / 诊断 / 病历号" style="width:280px;border:1px solid var(--line);padding:8px 12px;font-size:13px;outline:none;font-family:inherit">
+    </div>
+    <table>
+      <thead><tr><th>病历号</th><th>患者</th><th>科室</th><th>诊断</th><th>版本</th><th>归档时间</th><th style="text-align:right">操作</th></tr></thead>
+      <tbody>
+        ${state.records.map(r => `
+          <tr class="rec-row" data-text="${esc(r.patient + r.diagnosis + r.id + r.complaint)}">
+            <td class="mono" style="font-size:12px">${r.id}</td>
+            <td><b>${r.patient}</b> <span class="muted">${r.sex} · ${r.age}岁</span></td>
+            <td>${r.dept}</td>
+            <td>${r.diagnosis}</td>
+            <td><span class="tag t-info">${r.version}</span></td>
+            <td class="muted">${r.time}</td>
+            <td style="text-align:right"><button class="btn btn-sm" data-act="open-record" data-id="${r.id}">调阅</button></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function viewDocMessages() {
+  const unread = state.messages.filter(m => !m.read).length;
+  const tagOf = t => t === '危急值' ? 't-danger' : t === '待办' ? 't-warn' : 't-info';
+  return `
+  <div class="page-head">
+    <div><h2>消息中心</h2><p>危急值即时推送 · 待办提醒 · 系统通知</p></div>
+    <button class="btn" data-act="read-all">全部标记已读</button>
+  </div>
+  <div class="card">
+    <div class="card-h">消息列表 <span class="badge">${unread} 条未读</span></div>
+    ${state.messages.map(m => `
+      <div style="display:flex;gap:12px;align-items:center;padding:13px 4px;border-bottom:1px solid #eaf1ea">
+        <span class="tag ${tagOf(m.type)}">${m.type}</span>
+        <div style="flex:1;font-size:13.5px;${m.read ? 'color:var(--muted)' : 'font-weight:700'}">${esc(m.title)}</div>
+        <span class="muted">${m.time}</span>
+        ${m.read ? '' : '<span style="width:8px;height:8px;background:var(--danger)"></span>'}
+      </div>`).join('')}
+  </div>`;
+}
+
+/* =========================================================
+   ========== 护士角色视图 ==========
+   ========================================================= */
+function viewNurDashboard() {
+  const pending = state.nurseTasks.filter(t => t.status !== '已执行').length;
+  const done = state.nurseTasks.filter(t => t.status === '已执行').length;
+  return `
+  <div class="page-head">
+    <div><h2>护理工作台</h2><p>刘芳 · 主管护师 · 内科病区　|　${nowFull().slice(0,10)}</p></div>
+    <button class="btn btn-primary" data-act="nav" data-id="nur-exec">开始执行医嘱</button>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:16px">
+    <div class="kpi"><div class="kpi-l">待执行医嘱</div><div class="kpi-v">${pending}<small>条</small></div><div class="kpi-sub">扫码核对后执行</div></div>
+    <div class="kpi"><div class="kpi-l">今日已执行</div><div class="kpi-v">${done}<small>条</small></div><div class="kpi-sub">执行率 100%</div></div>
+    <div class="kpi"><div class="kpi-l">巡视记录</div><div class="kpi-v">${state.rounds.length}<small>次</small></div><div class="kpi-sub">今日已巡视</div></div>
+    <div class="kpi"><div class="kpi-l">不良事件</div><div class="kpi-v">${state.adverse.length}<small>起</small></div><div class="kpi-sub">已全部上报</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-h">待执行医嘱 <span class="badge">${pending}</span></div>
+      ${state.nurseTasks.filter(t => t.status !== '已执行').map(t => `
+        <div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #eaf1ea">
+          <span class="tag t-warn">${t.time}</span>
+          <div style="flex:1;font-size:13px"><b>${t.bed} ${t.patient}</b> · ${t.drug}</div>
+          <button class="btn btn-sm" data-act="nav" data-id="nur-exec">执行</button>
+        </div>`).join('') || '<div class="muted">全部已完成</div>'}
+    </div>
+    <div class="card">
+      <div class="card-h">护理团队提醒</div>
+      <div class="alert alert-warn"><b>[提醒]</b><span>12床 李建国 09:00 奥美拉唑待执行，请提前备药</span></div>
+      <div class="alert alert-warn"><b>[提醒]</b><span>18床 陈浩 10:00 布洛芬待执行</span></div>
+      <div class="alert alert-ok"><b>[✓]</b><span>今日双人扫码核对闭环，无差错记录</span></div>
+    </div>
+  </div>`;
+}
+
+function viewNurExec() {
+  const pending = state.nurseTasks.filter(t => t.status !== '已执行').length;
+  return `
+  <div class="page-head">
+    <div><h2>治疗执行</h2><p>扫码核对腕带与药品 → 执行 → 记录时间、用量、签名</p></div>
+    <div class="muted">待执行 ${pending} 条</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">治疗执行单</div>
+    <table>
+      <thead><tr><th>床位</th><th>患者</th><th>药品 / 治疗</th><th>给药途径</th><th>计划时间</th><th>状态</th><th style="text-align:right">操作</th></tr></thead>
+      <tbody>
+        ${state.nurseTasks.map(t => `
+          <tr>
+            <td><b>${t.bed}</b></td>
+            <td>${t.patient}</td>
+            <td>${t.drug}</td>
+            <td>${t.route}</td>
+            <td>${t.time}</td>
+            <td>${statusTag(t.status)}</td>
+            <td style="text-align:right;white-space:nowrap">
+              ${t.status === '待执行' ? `<button class="btn btn-sm btn-primary" data-act="nurse-verify" data-id="${t.id}">扫码核对</button>` : ''}
+              ${t.status === '已核对' ? `<button class="btn btn-sm btn-primary" data-act="nurse-exec" data-id="${t.id}">执行并记录</button>` : ''}
+              ${t.status === '已执行' ? `<span class="muted">${t.execTime || ''} 已执行</span>` : ''}
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function viewNurRound() {
+  return `
+  <div class="page-head">
+    <div><h2>巡视记录</h2><p>按护理级别定时巡视 · 记录生命体征与病情变化</p></div>
+    <button class="btn btn-primary" data-act="round-add">＋ 新增巡视记录</button>
+  </div>
+
+  <div class="card">
+    <div class="card-h">巡视记录 <span class="badge">${state.rounds.length}</span></div>
+    ${state.rounds.length ? `
+    <table>
+      <thead><tr><th>时间</th><th>床位</th><th>患者</th><th>护理级别</th><th>巡视记录</th><th>护士</th></tr></thead>
+      <tbody>
+        ${state.rounds.map(r => `
+          <tr>
+            <td><b>${r.time}</b></td>
+            <td>${r.bed}</td>
+            <td>${r.patient}</td>
+            <td><span class="tag t-info">${r.level}</span></td>
+            <td class="muted">${esc(r.note)}</td>
+            <td>${r.nurse}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>` : '<div class="muted">暂无巡视记录</div>'}
+  </div>`;
+}
+
+function viewNurAdverse() {
+  return `
+  <div class="page-head">
+    <div><h2>不良事件上报</h2><p>即时上报 · 流程流转至护理部 · 可追溯闭环</p></div>
+    <button class="btn btn-primary" data-act="nurse-report">＋ 上报不良事件</button>
+  </div>
+
+  <div class="card">
+    <div class="card-h">上报记录 <span class="badge">${state.adverse.length}</span></div>
+    ${state.adverse.length ? `
+    <table>
+      <thead><tr><th>时间</th><th>患者</th><th>类型</th><th>描述</th><th>上报人</th></tr></thead>
+      <tbody>
+        ${state.adverse.map(a => `<tr><td>${a.time}</td><td>${a.patient}</td><td><span class="tag t-danger">${a.type}</span></td><td>${esc(a.desc)}</td><td>${a.reporter}</td></tr>`).join('')}
+      </tbody>
+    </table>` : '<div class="muted">暂无不良事件记录</div>'}
+  </div>`;
+}
+
+function viewNurPatients() {
+  return `
+  <div class="page-head">
+    <div><h2>患者床位一览</h2><p>病区床位与护理级别实时视图</p></div>
+    <div class="muted">在院患者 ${state.patients.length} 人</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">床位列表</div>
+    <table>
+      <thead><tr><th>床位</th><th>患者</th><th>性别 / 年龄</th><th>诊断</th><th>护理级别</th><th>主管医生</th><th style="text-align:right">操作</th></tr></thead>
+      <tbody>
+        ${state.patients.map((p, i) => `
+          <tr>
+            <td><b>${p.bed}</b></td>
+            <td>${p.name}</td>
+            <td class="muted">${p.sex} · ${p.age}岁</td>
+            <td>${p.diag}</td>
+            <td><span class="tag ${p.level === '一级护理' ? 't-danger' : p.level === '二级护理' ? 't-warn' : 't-info'}">${p.level}</span></td>
+            <td>${p.doctor}</td>
+            <td style="text-align:right"><button class="btn btn-sm" data-act="view-patient" data-idx="${i}">查看</button></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+/* =========================================================
+   ========== 药师角色视图 ==========
+   ========================================================= */
+function viewPhaDashboard() {
+  const pending = state.prescriptions.filter(p => p.status === '待审核').length;
+  const dispensed = state.prescriptions.filter(p => p.status === '已发药').length;
+  const lowStock = state.stock.filter(s => s.qty < s.min).length;
+  return `
+  <div class="page-head">
+    <div><h2>药房工作台</h2><p>陈静 · 主管药师 · 门诊药房　|　${nowFull().slice(0,10)}</p></div>
+    <button class="btn btn-primary" data-act="nav" data-id="pha-review">开始审核处方</button>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:16px">
+    <div class="kpi"><div class="kpi-l">待审核处方</div><div class="kpi-v">${pending}<small>张</small></div><div class="kpi-sub">审核时效 ≤10 分钟</div></div>
+    <div class="kpi"><div class="kpi-l">今日已发药</div><div class="kpi-v">${dispensed}<small>张</small></div><div class="kpi-sub">扫码发药闭环</div></div>
+    <div class="kpi"><div class="kpi-l">库存预警</div><div class="kpi-v" style="color:var(--danger)">${lowStock}<small>项</small></div><div class="kpi-sub">低于预警值</div></div>
+    <div class="kpi"><div class="kpi-l">用药咨询</div><div class="kpi-v">${state.consults.filter(c => c.status === '待回复').length}<small>条</small></div><div class="kpi-sub">待回复</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-h">待审核处方 <span class="badge">${pending}</span></div>
+      ${state.prescriptions.filter(p => p.status === '待审核').map(p => `
+        <div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #eaf1ea">
+          <span class="tag t-warn">待审核</span>
+          <div style="flex:1;font-size:13px">${p.patient} · ${p.items.map(i => i.name).join('、')}</div>
+          <button class="btn btn-sm" data-act="nav" data-id="pha-review">去审核</button>
+        </div>`).join('') || '<div class="muted">暂无待审核处方</div>'}
+    </div>
+    <div class="card">
+      <div class="card-h">库存与咨询提醒</div>
+      ${state.stock.filter(s => s.qty < s.min).map(s => `
+        <div class="alert alert-warn"><b>[库存]</b><span>${s.name} 当前 ${s.qty}，低于预警值 ${s.min}，已自动生成采购申请</span></div>
+      `).join('') || '<div class="alert alert-ok"><b>[✓]</b><span>库存全部充足</span></div>'}
+      ${state.consults.filter(c => c.status === '待回复').map(c => `
+        <div class="alert alert-warn"><b>[咨询]</b><span>${c.patient}：${esc(c.question)}</span></div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function viewPhaReview() {
+  return `
+  <div class="page-head">
+    <div><h2>处方审核</h2><p>剂量 · 相互作用 · 适应症审核 · 审核通过后流转发药</p></div>
+    <div class="muted">待审核 ${state.prescriptions.filter(p => p.status === '待审核').length} 张</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">处方队列</div>
+    <table>
+      <thead><tr><th>处方号</th><th>患者</th><th>开单医生</th><th>药品明细</th><th>金额</th><th>状态</th><th style="text-align:right">操作</th></tr></thead>
+      <tbody>
+        ${state.prescriptions.map(p => {
+          const total = p.items.reduce((s, i) => s + i.price * i.qty, 0);
+          return `<tr>
+            <td class="mono" style="font-size:12px">${p.id}</td>
+            <td>${p.patient}</td>
+            <td>${p.doctor}</td>
+            <td style="font-size:12.5px;line-height:1.7">${p.items.map(i => `${i.name} <span class="muted">${i.spec} ×${i.qty}</span>`).join('<br>')}</td>
+            <td><b>¥${total.toFixed(2)}</b></td>
+            <td>${statusTag(p.status)}</td>
+            <td style="text-align:right;white-space:nowrap">
+              ${p.status === '待审核' ? `
+                <button class="btn btn-sm btn-primary" data-act="rx-pass" data-id="${p.id}">审核通过</button>
+                <button class="btn btn-sm btn-danger" data-act="rx-reject" data-id="${p.id}">退回</button>` : ''}
+              ${p.status === '已审核' ? `<span class="muted">已审核，待发药</span>` : ''}
+              ${p.status === '已发药' ? '<span class="muted">已发药</span>' : ''}
+              ${p.status === '已退回' ? '<span class="muted">已退回</span>' : ''}
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function viewPhaDispense() {
+  const ready = state.prescriptions.filter(p => p.status === '已审核');
+  return `
+  <div class="page-head">
+    <div><h2>发药退药</h2><p>扫码发药 · 库存自动扣减 · 退药需记录原因</p></div>
+    <div class="muted">待发药 ${ready.length} 张</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">待发药处方</div>
+    ${ready.length ? `
+    <table>
+      <thead><tr><th>处方号</th><th>患者</th><th>药品</th><th>金额</th><th style="text-align:right">操作</th></tr></thead>
+      <tbody>
+        ${ready.map(p => {
+          const total = p.items.reduce((s, i) => s + i.price * i.qty, 0);
+          return `<tr>
+            <td class="mono" style="font-size:12px">${p.id}</td>
+            <td>${p.patient}</td>
+            <td style="font-size:12.5px">${p.items.map(i => i.name).join('、')}</td>
+            <td><b>¥${total.toFixed(2)}</b></td>
+            <td style="text-align:right;white-space:nowrap">
+              <button class="btn btn-sm btn-primary" data-act="rx-dispense" data-id="${p.id}">扫码发药</button>
+              <button class="btn btn-sm btn-danger" data-act="rx-return" data-id="${p.id}">退药</button>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>` : '<div class="muted">暂无待发药处方</div>'}
+  </div>
+
+  <div class="card">
+    <div class="card-h">已发药记录</div>
+    <table>
+      <thead><tr><th>处方号</th><th>患者</th><th>药品</th><th>状态</th><th>时间</th></tr></thead>
+      <tbody>
+        ${state.prescriptions.filter(p => p.status === '已发药').map(p => `
+          <tr>
+            <td class="mono" style="font-size:12px">${p.id}</td>
+            <td>${p.patient}</td>
+            <td style="font-size:12.5px">${p.items.map(i => i.name).join('、')}</td>
+            <td>${statusTag(p.status)}</td>
+            <td class="muted">${p.time}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function viewPhaStock() {
+  return `
+  <div class="page-head">
+    <div><h2>药品库存</h2><p>库存实时扣减 · 低于预警值自动生成采购申请</p></div>
+    <div class="muted">预警 ${state.stock.filter(s => s.qty < s.min).length} 项</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">库存明细</div>
+    <table>
+      <thead><tr><th>药品名称</th><th>当前库存</th><th>预警值</th><th>状态</th><th>建议</th></tr></thead>
+      <tbody>
+        ${state.stock.map(s => `
+          <tr>
+            <td>${s.name}</td>
+            <td><b style="color:${s.qty < s.min ? 'var(--danger)' : 'var(--ink)'}">${s.qty}</b></td>
+            <td class="muted">${s.min}</td>
+            <td>${s.qty < s.min ? '<span class="tag t-danger">低于预警</span>' : '<span class="tag t-ok">充足</span>'}</td>
+            <td class="muted">${s.qty < s.min ? '已自动生成采购申请' : '—'}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function viewPhaConsult() {
+  return `
+  <div class="page-head">
+    <div><h2>用药咨询</h2><p>患者 / 医生用药问题 · 专业药师回复</p></div>
+    <div class="muted">待回复 ${state.consults.filter(c => c.status === '待回复').length} 条</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">咨询列表</div>
+    <table>
+      <thead><tr><th>编号</th><th>患者</th><th>问题</th><th>时间</th><th>状态</th><th style="text-align:right">操作</th></tr></thead>
+      <tbody>
+        ${state.consults.map(c => `
+          <tr>
+            <td class="mono" style="font-size:12px">${c.id}</td>
+            <td>${c.patient}</td>
+            <td>${esc(c.question)}</td>
+            <td class="muted">${c.time}</td>
+            <td>${statusTag(c.status)}</td>
+            <td style="text-align:right">
+              ${c.status === '待回复' ? `<button class="btn btn-sm btn-primary" data-act="pha-reply" data-id="${c.id}">回复</button>` : '<span class="muted">已回复</span>'}
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+/* =========================================================
+   ========== 医保人员角色视图 ==========
+   ========================================================= */
+function viewInsDashboard() {
+  const total = state.bills.reduce((s, b) => s + b.total, 0);
+  const ins = state.bills.reduce((s, b) => s + b.ins, 0);
+  const pending = state.bills.filter(b => b.status !== '已结算').length;
+  return `
+  <div class="page-head">
+    <div><h2>医保工作台</h2><p>王磊 · 医保办 · 审核员　|　医保目录 2.0</p></div>
+    <button class="btn btn-primary" data-act="nav" data-id="ins-settle">处理结算</button>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:16px">
+    <div class="kpi"><div class="kpi-l">今日费用总额</div><div class="kpi-v">${total.toFixed(2)}<small>元</small></div><div class="kpi-sub">含挂号 / 药品 / 检查</div></div>
+    <div class="kpi"><div class="kpi-l">医保统筹支付</div><div class="kpi-v">${ins.toFixed(2)}<small>元</small></div><div class="kpi-sub">报销比例约 70%</div></div>
+    <div class="kpi"><div class="kpi-l">待处理结算</div><div class="kpi-v" style="color:var(--warn)">${pending}<small>笔</small></div><div class="kpi-sub">平均结算 1.4 分钟</div></div>
+    <div class="kpi"><div class="kpi-l">异常费用</div><div class="kpi-v" style="color:var(--danger)">${state.anomalies.filter(a => a.status === '待处理').length}<small>笔</small></div><div class="kpi-sub">智能审核拦截</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-h">待处理事项</div>
+      ${state.bills.filter(b => b.status !== '已结算').map(b => `
+        <div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #eaf1ea">
+          <span class="tag t-warn">${b.status}</span>
+          <div style="flex:1;font-size:13px">${b.patient} · 费用 ¥${b.total.toFixed(2)}</div>
+          <button class="btn btn-sm" data-act="nav" data-id="ins-settle">去处理</button>
+        </div>`).join('')}
+      ${state.anomalies.filter(a => a.status === '待处理').map(a => `
+        <div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #eaf1ea">
+          <span class="tag t-danger">异常</span>
+          <div style="flex:1;font-size:13px">${a.patient} · ${a.reason}</div>
+          <button class="btn btn-sm" data-act="nav" data-id="ins-audit">去审核</button>
+        </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-h">医保目录状态</div>
+      <div class="summary">
+        <div class="row"><span>目录版本</span><b>2.0（已热更新）</b></div>
+        <div class="row"><span>药品条目</span><b>${state.catalog.length} 条</b></div>
+        <div class="row"><span>启用中</span><b style="color:var(--ok)">${state.catalog.filter(c => c.status === '启用').length} 条</b></div>
+        <div class="row"><span>停用</span><b style="color:var(--muted)">${state.catalog.filter(c => c.status === '停用').length} 条</b></div>
+        <div class="row"><span>政策变更响应</span><b>≤2 小时热更新</b></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function viewInsSettle() {
+  return `
+  <div class="page-head">
+    <div><h2>医保结算</h2><p>费用明细上传 → 目录匹配 → 智能审核 → 结算回传 → 电子票据</p></div>
+    <div class="muted">目录版本：2.0</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">结算清单</div>
+    <table>
+      <thead><tr><th>结算单号</th><th>患者</th><th>费用总额</th><th>医保报销</th><th>个人自付</th><th>状态</th><th style="text-align:right">操作</th></tr></thead>
+      <tbody>
+        ${state.bills.map(b => `
+          <tr>
+            <td class="mono" style="font-size:12px">${b.id}</td>
+            <td>${b.patient}</td>
+            <td><b>¥${b.total.toFixed(2)}</b></td>
+            <td style="color:var(--ok)">¥${b.ins.toFixed(2)}</td>
+            <td style="color:var(--danger)">¥${b.self.toFixed(2)}</td>
+            <td>${statusTag(b.status)}</td>
+            <td style="text-align:right;white-space:nowrap">
+              ${b.status === '待上传' ? `<button class="btn btn-sm btn-primary" data-act="bill-upload" data-id="${b.id}">上传明细</button>` : ''}
+              ${b.status === '已上传' ? `<button class="btn btn-sm btn-primary" data-act="bill-audit" data-id="${b.id}">智能审核</button>` : ''}
+              ${b.status === '已审核' ? `<button class="btn btn-sm btn-primary" data-act="bill-settle" data-id="${b.id}">确认结算</button>` : ''}
+              ${b.status === '已结算' ? `<button class="btn btn-sm" data-act="bill-receipt" data-id="${b.id}">电子票据</button>` : ''}
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function viewInsCatalog() {
+  return `
+  <div class="page-head">
+    <div><h2>目录维护</h2><p>药品目录匹配 · 甲乙类分类 · 报销比例配置</p></div>
+    <div class="muted">医保 2.0 版 · 共 ${state.catalog.length} 条</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">药品目录</div>
+    <table>
+      <thead><tr><th>编码</th><th>药品名称</th><th>类别</th><th>报销比例</th><th>状态</th><th style="text-align:right">操作</th></tr></thead>
+      <tbody>
+        ${state.catalog.map(c => `
+          <tr>
+            <td class="mono" style="font-size:12px">${c.code}</td>
+            <td>${c.name}</td>
+            <td><span class="tag ${c.type === '甲类' ? 't-ok' : 't-info'}">${c.type}</span></td>
+            <td>${c.ratio}</td>
+            <td>${statusTag(c.status)}</td>
+            <td style="text-align:right">
+              <button class="btn btn-sm" data-act="catalog-toggle" data-code="${c.code}">${c.status === '启用' ? '停用' : '启用'}</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function viewInsAudit() {
+  return `
+  <div class="page-head">
+    <div><h2>异常费用审核</h2><p>智能审核拦截明细 · 人工复核确认</p></div>
+    <div class="muted">待处理 ${state.anomalies.filter(a => a.status === '待处理').length} 笔</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">异常明细</div>
+    <table>
+      <thead><tr><th>编号</th><th>结算单</th><th>患者</th><th>项目</th><th>异常原因</th><th>金额</th><th>状态</th><th style="text-align:right">操作</th></tr></thead>
+      <tbody>
+        ${state.anomalies.map(a => `
+          <tr>
+            <td class="mono" style="font-size:12px">${a.id}</td>
+            <td class="mono" style="font-size:12px">${a.bill}</td>
+            <td>${a.patient}</td>
+            <td>${a.item}</td>
+            <td class="muted">${esc(a.reason)}</td>
+            <td><b>¥${a.amount.toFixed(2)}</b></td>
+            <td>${statusTag(a.status)}</td>
+            <td style="text-align:right;white-space:nowrap">
+              ${a.status === '待处理' ? `
+                <button class="btn btn-sm btn-primary" data-act="anomaly-pass" data-id="${a.id}">通过</button>
+                <button class="btn btn-sm btn-danger" data-act="anomaly-reject" data-id="${a.id}">驳回</button>` : '<span class="muted">已处理</span>'}
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function viewInsReport() {
+  const days = ['周一','周二','周三','周四','周五','周六','周日'];
+  const vals = [860, 932, 1010, 980, 1120, 1050, 1024];
+  const max = Math.max(...vals);
+  return `
+  <div class="page-head">
+    <div><h2>结算报表</h2><p>门诊量 · 报销金额 · 结算时效统计</p></div>
+    <div class="muted">统计周期：近 7 日</div>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:16px">
+    <div class="kpi"><div class="kpi-l">本周结算</div><div class="kpi-v">6,976<small>笔</small></div><div class="kpi-sub">日均 997 笔</div></div>
+    <div class="kpi"><div class="kpi-l">医保支出</div><div class="kpi-v">42.8<small>万元</small></div><div class="kpi-sub">统筹支付合计</div></div>
+    <div class="kpi"><div class="kpi-l">平均结算时长</div><div class="kpi-v">1.4<small>分钟</small></div><div class="kpi-sub">目标 ≤2 分钟</div></div>
+    <div class="kpi"><div class="kpi-l">审核拦截率</div><div class="kpi-v">0.3<small>%</small></div><div class="kpi-sub">智能审核</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">近 7 日结算量趋势</div>
+    <div class="chart">
+      ${vals.map((v, i) => `
+        <div class="chart-item">
+          <div class="chart-bar" style="height:${(v / max * 100).toFixed(1)}%"><span>${v}</span></div>
+          <div class="chart-lbl">${days[i]}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   ========== 患者角色视图 ==========
+   ========================================================= */
+function viewPatHome() {
+  const appt = state.patientAppts.find(a => a.status === '待就诊');
+  const unpaid = state.patientBills.filter(b => b.status === '待支付');
+  return `
+  <div class="page-head">
+    <div><h2>我的首页</h2><p>李建国 · 男 · 62岁　|　健康档案已加密存储</p></div>
+    <button class="btn btn-primary" data-act="nav" data-id="pat-book">在线挂号</button>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:16px">
+    <div class="kpi"><div class="kpi-l">待就诊预约</div><div class="kpi-v">${state.patientAppts.filter(a => a.status === '待就诊').length}<small>个</small></div><div class="kpi-sub">${appt ? appt.date + ' ' + appt.slot : '暂无'}</div></div>
+    <div class="kpi"><div class="kpi-l">待缴费用</div><div class="kpi-v" style="color:${unpaid.length ? 'var(--danger)' : 'var(--ink)'}">${unpaid.reduce((s, b) => s + b.amount, 0).toFixed(2)}<small>元</small></div><div class="kpi-sub">${unpaid.length} 笔待支付</div></div>
+    <div class="kpi"><div class="kpi-l">我的病历</div><div class="kpi-v">${state.records.filter(r => r.patient === '李建国').length}<small>份</small></div><div class="kpi-sub">支持在线调阅</div></div>
+    <div class="kpi"><div class="kpi-l">健康消息</div><div class="kpi-v">${state.patientMessages.filter(m => !m.read).length}<small>条</small></div><div class="kpi-sub">未读提醒</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-h">快捷入口</div>
+      <div class="grid-2" style="gap:10px">
+        ${[
+          { id:'pat-book', ico:'挂', name:'在线挂号' },
+          { id:'pat-appts', ico:'约', name:'我的预约' },
+          { id:'pat-bills', ico:'费', name:'我的缴费' },
+          { id:'pat-emr', ico:'历', name:'我的病历' },
+        ].map(q => `
+          <div class="dept" data-act="nav" data-id="${q.id}" style="padding:16px 8px">
+            <span class="ico">${q.ico}</span><span class="nm">${q.name}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h">我的提醒</div>
+      ${state.patientMessages.map(m => `
+        <div class="alert ${m.read ? 'alert-ok' : 'alert-warn'}">
+          <b>[${m.type}]</b><span>${esc(m.title)}</span>
+        </div>`).join('')}
+      <button class="btn btn-sm" data-act="pat-read-all" style="margin-top:6px">全部标记已读</button>
+    </div>
+  </div>`;
+}
+
+function viewPatBook() {
+  if (state.lastAppt) {
+    const a = state.lastAppt;
+    return `
+    <div class="card success">
+      <div class="check">✓</div>
+      <h3>预约挂号成功</h3>
+      <p class="muted">已锁定号源并完成在线支付，请按预约时段提前 15 分钟到院候诊</p>
+      <div class="health-code">
+        ${qrHtml(a.code)}
+        <div style="text-align:left">
+          <div class="muted" style="margin-bottom:4px">电子健康码</div>
+          <div class="mono">${a.code}</div>
+          <div class="muted" style="margin-top:8px">${a.dept} · ${a.doctor}</div>
+          <div style="font-size:13px;margin-top:2px">${a.date} ${a.slot}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn btn-primary" data-act="new-booking">再挂一个号</button>
+        <button class="btn" data-act="nav" data-id="pat-appts">查看我的预约</button>
+      </div>
+    </div>`;
+  }
+
+  const b = state.booking;
+  const dates = dateLabels();
+  const dept = DEPTS.find(d => d.id === b.dept);
+  const docs = DOCTORS.filter(d => d.dept === b.dept);
+  const doc = DOCTORS.find(d => d.id === b.doctor);
+  const step = !b.dept ? 1 : !b.doctor ? 2 : b.slot === null ? 3 : 4;
+
+  return `
+  <div class="page-head">
+    <div><h2>在线挂号</h2><p>号源池 · 分时段预约 · 在线支付</p></div>
+  </div>
+
+  <div class="stepbar">
+    <div class="step ${step >= 1 ? 'done' : ''}"><b>1</b>选择科室</div>
+    <div class="step ${step >= 2 ? 'done' : ''}"><b>2</b>选择医生</div>
+    <div class="step ${step >= 3 ? 'done' : ''}"><b>3</b>选择时段</div>
+    <div class="step ${step >= 4 ? 'done' : ''}"><b>4</b>确认支付</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">选择就诊科室</div>
+    <div class="dept-grid">
+      ${DEPTS.map(d => `
+        <div class="dept ${b.dept === d.id ? 'sel' : ''}" data-act="pick-dept" data-id="${d.id}">
+          <span class="ico">${d.icon}</span><span class="nm">${d.name}</span>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  ${b.dept ? `
+  <div class="card">
+    <div class="card-h">选择医生 <span class="muted">${dept.name}</span></div>
+    ${docs.length ? docs.map(d => `
+      <div class="doc ${b.doctor === d.id ? 'sel' : ''}" data-act="pick-doctor" data-id="${d.id}">
+        <div class="av">${d.name[0]}</div>
+        <div>
+          <div class="dname">${d.name} <span class="tag t-info">${d.title}</span></div>
+          <div class="dinfo">${dept.name} · 好评率 ${d.rating}</div>
+        </div>
+        <div class="dright">
+          <div class="fee">¥${d.fee}<small> 挂号费</small></div>
+        </div>
+      </div>`).join('') : '<div class="muted">该科室暂无可预约医生</div>'}
+  </div>` : ''}
+
+  ${doc ? `
+  <div class="card">
+    <div class="card-h">选择就诊时段 <span class="muted">${doc.name} ${doc.title}</span></div>
+    <div class="date-tabs">
+      ${dates.map((d, i) => `<div class="date-tab ${b.dateIdx === i ? 'sel' : ''}" data-act="pick-date" data-idx="${i}">${d.label}</div>`).join('')}
+    </div>
+    <div class="slot-grid">
+      ${SLOTS.map(s => {
+        const r = slotRemain(doc.id, dates[b.dateIdx].key, s);
+        return `<button class="slot ${b.slot === s ? 'sel' : ''}" ${r === 0 ? 'disabled' : ''}
+                  data-act="pick-slot" data-slot="${s}">
+                  <b>${s}</b><span>${r === 0 ? '已约满' : '余 ' + r + ' 个'}</span>
+                </button>`;
+      }).join('')}
+    </div>
+  </div>` : ''}
+
+  ${doc && b.slot !== null ? `
+  <div class="card">
+    <div class="card-h">确认预约信息</div>
+    <div class="grid-2">
+      <div class="summary">
+        <div class="row"><span>就诊科室</span><b>${dept.name}</b></div>
+        <div class="row"><span>就诊医生</span><b>${doc.name} ${doc.title}</b></div>
+        <div class="row"><span>就诊时间</span><b>${dates[b.dateIdx].label} ${b.slot}</b></div>
+        <div class="row"><span>患者姓名</span><b>李建国（男 · 62岁）</b></div>
+        <div class="row"><span>支付方式</span><b>微信支付</b></div>
+      </div>
+      <div class="summary" style="display:flex;flex-direction:column;justify-content:center">
+        <div class="row"><span>挂号费</span><b>¥${doc.fee.toFixed(2)}</b></div>
+        <div class="row"><span>医保统筹支付</span><b style="color:var(--ok)">-¥${(doc.fee * 0.6).toFixed(2)}</b></div>
+        <div class="row"><span>个人自付</span><b class="total">¥${(doc.fee * 0.4).toFixed(2)}</b></div>
+        <button class="btn btn-primary" style="margin-top:14px;width:100%;padding:11px" data-act="pay">
+          立即支付并锁定号源
+        </button>
+      </div>
+    </div>
+  </div>` : ''}`;
+}
+
+function viewPatAppts() {
+  return `
+  <div class="page-head">
+    <div><h2>我的预约</h2><p>预约记录 · 取消 / 改期</p></div>
+    <button class="btn btn-primary" data-act="nav" data-id="pat-book">＋ 新增预约</button>
+  </div>
+
+  <div class="card">
+    <div class="card-h">预约记录</div>
+    ${state.patientAppts.length ? `
+    <table>
+      <thead><tr><th>预约号</th><th>科室</th><th>医生</th><th>就诊时间</th><th>挂号费</th><th>状态</th><th style="text-align:right">操作</th></tr></thead>
+      <tbody>
+        ${state.patientAppts.map(a => `
+          <tr>
+            <td class="mono" style="font-size:12px">${a.id}</td>
+            <td>${a.dept}</td>
+            <td>${a.doctor}</td>
+            <td>${a.date} ${a.slot}</td>
+            <td><b>¥${a.fee.toFixed(2)}</b></td>
+            <td>${statusTag(a.status)}</td>
+            <td style="text-align:right;white-space:nowrap">
+              ${a.status === '待就诊' ? `
+                <button class="btn btn-sm" data-act="pat-cancel" data-id="${a.id}">取消预约</button>
+                <button class="btn btn-sm" data-act="pat-reschedule" data-id="${a.id}">改期</button>` : '<span class="muted">—</span>'}
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>` : '<div class="muted">暂无预约记录</div>'}
+  </div>`;
+}
+
+function viewPatBills() {
+  return `
+  <div class="page-head">
+    <div><h2>我的缴费</h2><p>门诊费用 · 药品费用 · 医保报销明细</p></div>
+    <div class="muted">待支付 ${state.patientBills.filter(b => b.status === '待支付').length} 笔</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">费用清单</div>
+    <table>
+      <thead><tr><th>单号</th><th>项目</th><th>金额</th><th>时间</th><th>状态</th><th style="text-align:right">操作</th></tr></thead>
+      <tbody>
+        ${state.patientBills.map(b => `
+          <tr>
+            <td class="mono" style="font-size:12px">${b.id}</td>
+            <td>${b.item}</td>
+            <td><b>¥${b.amount.toFixed(2)}</b></td>
+            <td class="muted">${b.time}</td>
+            <td>${statusTag(b.status)}</td>
+            <td style="text-align:right">
+              ${b.status === '待支付' ? `<button class="btn btn-sm btn-primary" data-act="pat-pay" data-id="${b.id}">立即支付</button>` : '<span class="muted">已完成</span>'}
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function viewPatEMR() {
+  const my = state.records.filter(r => r.patient === '李建国');
+  return `
+  <div class="page-head">
+    <div><h2>我的病历</h2><p>病历在线调阅 · 支持下载 PDF</p></div>
+    <div class="muted">共 ${my.length} 份</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">我的就诊记录</div>
+    ${my.length ? my.map(r => `
+      <div class="patient-hd" style="margin-bottom:10px">
+        <div class="avatar" style="width:40px;height:40px">${r.patient[0]}</div>
+        <div>
+          <div style="font-weight:700">${r.diagnosis}</div>
+          <div class="muted" style="margin-top:4px">${r.dept} · ${r.doctor} · ${r.time}</div>
+        </div>
+        <div style="margin-left:auto">
+          <button class="btn btn-sm" data-act="open-record" data-id="${r.id}">查看病历</button>
+        </div>
+      </div>`).join('') : '<div class="muted">暂无病历记录</div>'}
+  </div>`;
+}
+
+function viewPatOnline() {
+  return `
+  <div class="page-head">
+    <div><h2>在线复诊</h2><p>视频复诊 · 电子处方 · 药品配送上门</p></div>
+    <div class="muted">互联网医院服务</div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-h">发起在线复诊</div>
+      <div class="field">
+        <label>选择复诊科室</label>
+        <select>
+          ${DEPTS.map(d => `<option>${d.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>病情描述</label>
+        <textarea placeholder="请简要描述当前症状与用药情况"></textarea>
+      </div>
+      <button class="btn btn-primary" style="width:100%;padding:11px" data-act="pat-video">发起视频复诊</button>
+      <p class="muted" style="margin-top:12px">在线复诊支持电子处方外流与药品配送，处方由药师审核后生效。</p>
+    </div>
+    <div class="card">
+      <div class="card-h">配送信息</div>
+      <div class="summary">
+        <div class="row"><span>配送地址</span><b>成都市高新区天府大道 88 号</b></div>
+        <div class="row"><span>收件人</span><b>李建国　138****6621</b></div>
+        <div class="row"><span>配送方式</span><b>顺丰同城 · 冷链可选</b></div>
+        <div class="row"><span>预计送达</span><b>48 小时内</b></div>
+        <div class="row"><span>状态</span><b style="color:var(--ok)">配送服务正常</b></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   ========== 系统管理员角色视图 ==========
+   ========================================================= */
+function viewAdmDashboard() {
+  return `
+  <div class="page-head">
+    <div><h2>系统概览</h2><p>Admin · 系统管理员　|　运行状态与安全合规</p></div>
+    <div class="muted">${nowFull()}</div>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:16px">
+    <div class="kpi"><div class="kpi-l">系统可用性</div><div class="kpi-v">99.9<small>%</small></div><div class="kpi-sub">双机热备</div></div>
+    <div class="kpi"><div class="kpi-l">平均响应</div><div class="kpi-v">0.8<small>秒</small></div><div class="kpi-sub">目标 ≤1 秒</div></div>
+    <div class="kpi"><div class="kpi-l">今日请求</div><div class="kpi-v">18.6<small>万</small></div><div class="kpi-sub">P99 ≤ 1 秒</div></div>
+    <div class="kpi"><div class="kpi-l">安全告警</div><div class="kpi-v" style="color:var(--ok)">0<small>条</small></div><div class="kpi-sub">等保 3 级</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card"><div class="card-h">性能与可用性</div>
+      <div style="font-size:13px;line-height:2.1;color:var(--muted)">
+        日门诊量支撑：<b style="color:var(--ink)">1 万次</b><br>
+        系统响应：<b style="color:var(--ink)">≤ 1 秒</b><br>
+        影像调阅：<b style="color:var(--ink)">≤ 3 秒</b><br>
+        可用性：<b style="color:var(--ink)">99.9%（双机热备）</b><br>
+        故障切换：<b style="color:var(--ink)">≤ 30 秒自动</b>
+      </div>
+    </div>
+    <div class="card"><div class="card-h">安全合规</div>
+      <div style="font-size:13px;line-height:2.1;color:var(--muted)">
+        等保等级：<b style="color:var(--ink)">三级（2.0）</b><br>
+        数据库加密：<b style="color:var(--ink)">TDE</b><br>
+        传输加密：<b style="color:var(--ink)">HTTPS + SM2/SM3</b><br>
+        运维审计：<b style="color:var(--ink)">堡垒机</b><br>
+        日志：<b style="color:var(--ink)">防篡改存证</b>
+      </div>
+    </div>
+    <div class="card"><div class="card-h">技术架构</div>
+      <div style="font-size:13px;line-height:2.1;color:var(--muted)">
+        前端：<b style="color:var(--ink)">Vue3 + ElementPlus（三端）</b><br>
+        网关：<b style="color:var(--ink)">Spring Cloud Gateway</b><br>
+        微服务：<b style="color:var(--ink)">挂号/病历/处方/收费/药品/医保/消息</b><br>
+        存储：<b style="color:var(--ink)">PostgreSQL + Redis + TDengine + MinIO</b><br>
+        消息 / 工作流：<b style="color:var(--ink)">RabbitMQ / Camunda</b>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-h">风险与应对预案</div>
+    <table>
+      <thead><tr><th>风险场景</th><th>应对措施</th></tr></thead>
+      <tbody>
+        <tr><td>医保接口政策变更</td><td class="muted">预留配置表 + 版本隔离，2 小时内热更新</td></tr>
+        <tr><td>高峰号源并发超卖</td><td class="muted">Redis 分布式锁 + 号源预减，库存为零即拒绝</td></tr>
+        <tr><td>数据迁移失败</td><td class="muted">双轨并行运行 1 个月，确认无误后切换</td></tr>
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function viewAdmRbac() {
+  const roles = ['患者','医生','护士','药师','医保人员','系统管理员'];
+  const perms = [
+    { n:'预约挂号', r:['✓','—','—','—','—','✓'] },
+    { n:'病历书写/调阅', r:['调阅','读写','只读','—','只读','—'] },
+    { n:'检验检查开单', r:['—','✓','—','—','—','—'] },
+    { n:'处方审核', r:['—','—','—','✓','—','—'] },
+    { n:'医嘱执行', r:['—','—','✓','—','—','—'] },
+    { n:'医保目录维护', r:['—','—','—','—','✓','—'] },
+    { n:'角色授权/审计', r:['—','—','—','—','—','✓'] },
+  ];
+  return `
+  <div class="page-head">
+    <div><h2>角色权限</h2><p>RBAC 角色授权 + 数据域隔离</p></div>
+    <div class="muted">当前登录角色：<b>${state.role}</b></div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">权限矩阵</div>
+    <table>
+      <thead><tr><th>功能权限</th>${roles.map(r => `<th style="text-align:center">${r}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${perms.map(p => `
+          <tr>
+            <td><b>${p.n}</b></td>
+            ${p.r.map(v => `<td style="text-align:center">${
+              v === '✓' ? '<span class="tag t-ok">✓</span>' :
+              v === '—' ? '<span class="muted">—</span>' :
+              `<span class="tag t-info">${v}</span>`}</td>`).join('')}
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function viewAdmBackup() {
+  return `
+  <div class="page-head">
+    <div><h2>数据备份</h2><p>本地 + 异地云双副本 · 病历离线备份 ≥15 年</p></div>
+    <button class="btn btn-primary" data-act="adm-backup-now">立即备份</button>
+  </div>
+
+  <div class="card">
+    <div class="card-h">备份记录</div>
+    <table>
+      <thead><tr><th>时间</th><th>类型</th><th>数据量</th><th>存储位置</th><th>状态</th></tr></thead>
+      <tbody>
+        ${state.backups.map(b => `
+          <tr>
+            <td><b>${b.time}</b></td>
+            <td>${b.type}</td>
+            <td>${b.size}</td>
+            <td class="muted">${b.location}</td>
+            <td>${statusTag(b.status)}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-h">备份策略</div>
+    <div class="summary">
+      <div class="row"><span>全量备份</span><b>每日 06:00</b></div>
+      <div class="row"><span>增量备份</span><b>每日 12:00 / 18:00</b></div>
+      <div class="row"><span>存储位置</span><b>本地磁盘 + 异地云双副本</b></div>
+      <div class="row"><span>加密方式</span><b>国密 SM4</b></div>
+      <div class="row"><span>保存期限</span><b>病历 ≥15 年</b></div>
+    </div>
+  </div>`;
+}
+
+function viewAdmAudit() {
+  return `
+  <div class="page-head">
+    <div><h2>日志审计</h2><p>操作日志防篡改存证 · 访问追溯</p></div>
+    <div class="muted">今日审计记录 ${state.auditLogs.length} 条</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">操作日志</div>
+    <table>
+      <thead><tr><th>时间</th><th>操作人</th><th>角色</th><th>操作</th><th>对象</th><th>IP 地址</th></tr></thead>
+      <tbody>
+        ${state.auditLogs.map(l => `
+          <tr>
+            <td><b>${l.time}</b></td>
+            <td>${l.user}</td>
+            <td><span class="tag t-info">${l.role}</span></td>
+            <td>${l.action}</td>
+            <td class="mono" style="font-size:12px">${l.target}</td>
+            <td class="muted">${l.ip}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function viewAdmApi() {
+  return `
+  <div class="page-head">
+    <div><h2>接口监控</h2><p>实时调用量 · 成功率 · 平均延迟</p></div>
+    <button class="btn" data-act="adm-refresh-api">刷新数据</button>
+  </div>
+
+  <div class="card">
+    <div class="card-h">接口状态</div>
+    <table>
+      <thead><tr><th>接口名称</th><th>今日调用</th><th>成功率</th><th>平均延迟</th><th>状态</th></tr></thead>
+      <tbody>
+        ${state.apiLogs.map(a => `
+          <tr>
+            <td><b>${a.name}</b></td>
+            <td><b>${a.calls.toLocaleString()}</b></td>
+            <td style="color:var(--ok)">${a.success}</td>
+            <td>${a.latency}</td>
+            <td>${statusTag(a.status)}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+/* =========================================================
+   视图路由
+   ========================================================= */
+const VIEWS = {
+  'doc-dashboard': viewDocDashboard,
+  'doc-clinic':    viewDocClinic,
+  'doc-results':   viewDocResults,
+  'doc-emr':       viewDocEMR,
+  'doc-messages':  viewDocMessages,
+
+  'nur-dashboard': viewNurDashboard,
+  'nur-exec':      viewNurExec,
+  'nur-round':     viewNurRound,
+  'nur-adverse':   viewNurAdverse,
+  'nur-patients':  viewNurPatients,
+
+  'pha-dashboard': viewPhaDashboard,
+  'pha-review':    viewPhaReview,
+  'pha-dispense':  viewPhaDispense,
+  'pha-stock':     viewPhaStock,
+  'pha-consult':   viewPhaConsult,
+
+  'ins-dashboard': viewInsDashboard,
+  'ins-settle':    viewInsSettle,
+  'ins-catalog':   viewInsCatalog,
+  'ins-audit':     viewInsAudit,
+  'ins-report':    viewInsReport,
+
+  'pat-home':   viewPatHome,
+  'pat-book':   viewPatBook,
+  'pat-appts':  viewPatAppts,
+  'pat-bills':  viewPatBills,
+  'pat-emr':    viewPatEMR,
+  'pat-online': viewPatOnline,
+
+  'adm-dashboard': viewAdmDashboard,
+  'adm-rbac':      viewAdmRbac,
+  'adm-backup':    viewAdmBackup,
+  'adm-audit':     viewAdmAudit,
+  'adm-api':       viewAdmApi,
+};
+
+/* =========================================================
+   渲染
+   ========================================================= */
+function renderNav() {
+  const items = NAV[state.role] || [];
+  $('#nav').innerHTML = items.map(n => `
+    <div class="nav-item ${n.id === state.route ? 'active' : ''}" data-act="nav" data-id="${n.id}">
+      <span class="ico">${n.ico}</span><span class="lbl">${n.label}</span>
+    </div>`).join('');
+}
+
+function render() {
+  const fn = VIEWS[state.route] || VIEWS['doc-dashboard'];
+  $('#view').innerHTML = fn();
+  $('#view').scrollTop = 0;
+  $$('#nav .nav-item').forEach(n => n.classList.toggle('active', n.dataset.id === state.route));
+  const item = (NAV[state.role] || []).find(n => n.id === state.route);
+  $('#crumb').textContent = item ? item.label : '工作台';
+  $('#roleStrip').textContent = state.role + '视角';
+}
+
+function switchRole(user) {
+  state.role = user.role;
+  state.route = (NAV[user.role] && NAV[user.role][0]) ? NAV[user.role][0].id : 'doc-dashboard';
+  const u = user;
+  $('#uName').textContent = u.name;
+  $('#uRole').textContent = (u.profile && u.profile.desc) || u.role;
+  $('#uAvatar').textContent = (u.profile && u.profile.avatar) || u.name[0];
+  renderNav();
+  render();
+}
+
+/* =========================================================
+   交互动作
+   ========================================================= */
+const ACTIONS = {
+  'nav': d => { state.route = d.id; render(); },
+  'modal-close': () => closeModal(),
+
+  /* ---- 医生 ---- */
+  'select-patient': d => {
+    state.activePatient = d.id;
+    if (d.goto) state.route = d.goto;
+    render();
+  },
+  'tpl': d => {
+    const t = TEMPLATES[d.id];
+    const f = getForm(state.activePatient);
+    f.complaint = t.complaint; f.history = t.history; f.diagnosis = t.diagnosis;
+    f.labs = [...t.labs]; f.exams = [...t.exams]; f.drugs = [...t.drugs];
+    toast(`已引用模板：${t.name}`);
+    render();
+  },
+  'toggle-lab': d => {
+    const f = getForm(state.activePatient);
+    f.labs = f.labs.includes(d.id) ? f.labs.filter(x => x !== d.id) : [...f.labs, d.id];
+    render();
+  },
+  'toggle-exam': d => {
+    const f = getForm(state.activePatient);
+    f.exams = f.exams.includes(d.id) ? f.exams.filter(x => x !== d.id) : [...f.exams, d.id];
+    render();
+  },
+  'toggle-drug': d => {
+    const f = getForm(state.activePatient);
+    f.drugs = f.drugs.includes(d.id) ? f.drugs.filter(x => x !== d.id) : [...f.drugs, d.id];
+    render();
+  },
+  'submit-emr': () => {
+    const p = state.queue.find(x => x.id === state.activePatient);
+    const f = getForm(p.id);
+    if (!f.complaint.trim()) return toast('请填写主诉', 'warn');
+    if (!f.diagnosis.trim()) return toast('请填写初步诊断', 'warn');
+    if (!f.drugs.length && !f.labs.length && !f.exams.length) return toast('请至少开立一项医嘱', 'warn');
+    if (f.submitted) return toast('该患者病历已提交', 'warn');
+
+    const warns = drugWarnings(f.drugs, p);
+    const severe = warns.some(w => w.level === '严重');
+    const doSubmit = async () => {
+      f.submitted = true;
+      await persist('/api/emr', {
+        patientId: p.id, complaint: f.complaint, diagnosis: f.diagnosis,
+        labs: f.labs, exams: f.exams, drugs: f.drugs,
+      }, '病历已归档，处方与费用单已流转');
+    };
+    if (severe) {
+      openModal(`
+        <h3>合理用药严重预警</h3>
+        ${warns.map(w => `<div class="alert alert-danger"><b>[${w.level}]</b><span>${w.msg}</span></div>`).join('')}
+        <p class="muted" style="margin-top:12px">确认继续提交？系统将记录本次超预警开单行为用于处方点评。</p>
+        <div class="modal-actions">
+          <button class="btn" data-act="modal-close">返回修改</button>
+          <button class="btn btn-primary" data-act="confirm-submit">确认提交</button>
+        </div>`);
+      ACTIONS['confirm-submit'] = () => { closeModal(); doSubmit(); };
+    } else { doSubmit(); }
+  },
+  'confirm-submit': () => closeModal(),
+  'open-record': d => {
+    const r = state.records.find(x => x.id === d.id);
+    openModal(`
+      <h3>病历调阅 · ${r.id}</h3>
+      <div class="summary">
+        <div class="row"><span>患者</span><b>${r.patient}（${r.sex} · ${r.age}岁）</b></div>
+        <div class="row"><span>科室 / 医生</span><b>${r.dept} · ${r.doctor}</b></div>
+        <div class="row"><span>主诉</span><b>${esc(r.complaint)}</b></div>
+        <div class="row"><span>诊断</span><b>${r.diagnosis}</b></div>
+        <div class="row"><span>版本</span><b>${r.version}</b></div>
+        <div class="row"><span>归档时间</span><b>${r.time}</b></div>
+        <div class="row"><span>加密状态</span><b style="color:var(--ok)">SM4 已加密 · 双副本</b></div>
+      </div>
+      <p class="muted" style="margin-top:12px">本次访问已记入防篡改审计日志</p>
+      <div class="modal-actions"><button class="btn btn-primary" data-act="modal-close">关闭</button></div>`);
+  },
+  'view-result': d => {
+    const r = state.results[+d.idx];
+    openModal(`
+      <h3>检验检查报告</h3>
+      <div class="summary">
+        <div class="row"><span>患者</span><b>${r.patient}</b></div>
+        <div class="row"><span>项目</span><b>${r.item}</b></div>
+        <div class="row"><span>结果值</span><b style="color:${r.level==='危急'?'var(--danger)':r.level==='异常'?'var(--warn)':'var(--ok)'}">${r.value}</b></div>
+        <div class="row"><span>参考范围</span><b>${r.ref}</b></div>
+        <div class="row"><span>报告时间</span><b>${r.time}</b></div>
+        <div class="row"><span>级别</span><b><span class="tag ${tagFor(r.level)}">${r.level}</span></b></div>
+      </div>
+      <div class="modal-actions"><button class="btn btn-primary" data-act="modal-close">关闭</button></div>`);
+  },
+  'read-all': () => persist('/api/messages/read-all', {}, '全部消息已标记为已读'),
+
+  /* ---- 护士 ---- */
+  'nurse-verify': d => {
+    const t = state.nurseTasks.find(x => x.id === d.id);
+    openModal(`
+      <h3>扫码核对 · ${t.patient} ${t.bed}</h3>
+      <div class="field"><label>腕带二维码</label><input value="WRIST-${t.patient}-${t.bed}" readonly></div>
+      <div class="field"><label>药品条码</label><input value="DRUG-${t.drug.split(' ')[0]}-${t.time.replace(':','')}" readonly></div>
+      <div class="alert alert-ok"><b>[✓]</b><span>患者身份与药品信息匹配成功，双人核对通过</span></div>
+      <div class="modal-actions">
+        <button class="btn" data-act="modal-close">取消</button>
+        <button class="btn btn-primary" data-act="nurse-verify-ok" data-id="${t.id}">核对通过</button>
+      </div>`);
+  },
+  'nurse-verify-ok': d => {
+    closeModal();
+    persist('/api/nurse/verify/' + d.id, {}, '用药核对通过');
+  },
+  'nurse-exec': d => {
+    const t = state.nurseTasks.find(x => x.id === d.id);
+    openModal(`
+      <h3>执行记录 · ${t.patient} ${t.bed}</h3>
+      <div class="field"><label>实际执行时间</label><input id="execTime" value="${nowTime()}"></div>
+      <div class="field"><label>实际用量</label><input id="execDose" value="${t.drug}"></div>
+      <div class="field"><label>执行护士签名</label><input id="execSign" value="刘芳"></div>
+      <div class="modal-actions">
+        <button class="btn" data-act="modal-close">取消</button>
+        <button class="btn btn-primary" data-act="nurse-exec-ok" data-id="${t.id}">确认执行</button>
+      </div>`);
+  },
+  'nurse-exec-ok': d => {
+    closeModal();
+    persist('/api/nurse/exec/' + d.id, {
+      execTime: ($('#execTime') && $('#execTime').value) || nowTime(),
+      sign: ($('#execSign') && $('#execSign').value) || (CURRENT_USER && CURRENT_USER.name) || '',
+    }, '医嘱已执行并留痕');
+  },
+  'nurse-report': () => {
+    openModal(`
+      <h3>不良事件上报</h3>
+      <div class="field"><label>患者</label><input id="advPatient" placeholder="例如：李建国"></div>
+      <div class="field"><label>事件类型</label>
+        <select id="advType">
+          <option>用药差错</option><option>跌倒坠床</option><option>管路滑脱</option>
+          <option>标本采集错误</option><option>压疮</option><option>其他</option>
+        </select>
+      </div>
+      <div class="field"><label>事件描述</label><textarea id="advDesc" placeholder="请描述事件经过、后果与已采取措施"></textarea></div>
+      <div class="modal-actions">
+        <button class="btn" data-act="modal-close">取消</button>
+        <button class="btn btn-primary" data-act="report-submit">提交上报</button>
+      </div>`);
+  },
+  'report-submit': () => {
+    const patient = ($('#advPatient') && $('#advPatient').value.trim()) || '未知患者';
+    const type = $('#advType') ? $('#advType').value : '其他';
+    const desc = ($('#advDesc') && $('#advDesc').value.trim()) || '（未填写描述）';
+    closeModal();
+    persist('/api/adverse', { patient, type, desc }, '不良事件已上报，流程已流转至护理部');
+  },
+  'round-add': () => {
+    openModal(`
+      <h3>新增巡视记录</h3>
+      <div class="field"><label>床位 / 患者</label>
+        <select id="rndPatient">
+          ${state.patients.map(p => `<option value="${p.bed}|${p.name}">${p.bed} ${p.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>巡视记录</label><textarea id="rndNote" placeholder="生命体征、病情变化、患者主诉等"></textarea></div>
+      <div class="modal-actions">
+        <button class="btn" data-act="modal-close">取消</button>
+        <button class="btn btn-primary" data-act="round-add-ok">提交记录</button>
+      </div>`);
+  },
+  'round-add-ok': () => {
+    const sel = $('#rndPatient');
+    const [bed, patient] = sel ? sel.value.split('|') : ['未知', '未知'];
+    const note = ($('#rndNote') && $('#rndNote').value.trim()) || '（未填写巡视记录）';
+    closeModal();
+    persist('/api/rounds', { bed, patient, note }, '巡视记录已提交');
+  },
+  'view-patient': d => {
+    const p = state.patients[+d.idx];
+    openModal(`
+      <h3>患者详情 · ${p.bed}</h3>
+      <div class="summary">
+        <div class="row"><span>姓名</span><b>${p.name}</b></div>
+        <div class="row"><span>性别 / 年龄</span><b>${p.sex} · ${p.age}岁</b></div>
+        <div class="row"><span>诊断</span><b>${p.diag}</b></div>
+        <div class="row"><span>护理级别</span><b>${p.level}</b></div>
+        <div class="row"><span>主管医生</span><b>${p.doctor}</b></div>
+      </div>
+      <div class="modal-actions"><button class="btn btn-primary" data-act="modal-close">关闭</button></div>`);
+  },
+
+  /* ---- 药师 ---- */
+  'rx-pass': d => persist('/api/rx/' + d.id + '/pass', {}, `处方 ${d.id} 审核通过`),
+  'rx-reject': d => persist('/api/rx/' + d.id + '/reject', {}, `处方 ${d.id} 已退回开单医生`),
+  'rx-dispense': d => persist('/api/rx/' + d.id + '/dispense', {}, `处方 ${d.id} 发药完成，库存已自动扣减`),
+  'rx-return': d => persist('/api/rx/' + d.id + '/return', {}, `处方 ${d.id} 已退药，库存已回补`),
+  'pha-reply': d => {
+    const c = state.consults.find(x => x.id === d.id);
+    openModal(`
+      <h3>回复用药咨询 · ${c.patient}</h3>
+      <div class="alert alert-warn"><b>[咨询]</b><span>${esc(c.question)}</span></div>
+      <div class="field"><label>回复内容</label><textarea id="replyText" placeholder="请给出专业用药建议"></textarea></div>
+      <div class="modal-actions">
+        <button class="btn" data-act="modal-close">取消</button>
+        <button class="btn btn-primary" data-act="pha-reply-ok" data-id="${c.id}">提交回复</button>
+      </div>`);
+  },
+  'pha-reply-ok': d => {
+    closeModal();
+    persist('/api/consult/' + d.id + '/reply', { reply: ($('#replyText') && $('#replyText').value) || '' }, '用药咨询已回复');
+  },
+
+  /* ---- 医保 ---- */
+  'bill-upload': d => persist('/api/bill/' + d.id + '/upload', {}, '费用明细已实时上传医保平台'),
+  'bill-audit': d => persist('/api/bill/' + d.id + '/audit', {}, '智能审核通过，目录匹配正常'),
+  'bill-settle': d => persist('/api/bill/' + d.id + '/settle', {}, '结算完成，医保报销已回传'),
+  'bill-receipt': d => {
+    const b = state.bills.find(x => x.id === d.id);
+    openModal(`
+      <h3>电子票据</h3>
+      <div class="summary">
+        <div class="row"><span>票据号</span><b class="mono">${'FP' + b.id.slice(1)}</b></div>
+        <div class="row"><span>患者</span><b>${b.patient}</b></div>
+        <div class="row"><span>费用总额</span><b>¥${b.total.toFixed(2)}</b></div>
+        <div class="row"><span>医保统筹支付</span><b style="color:var(--ok)">¥${b.ins.toFixed(2)}</b></div>
+        <div class="row"><span>个人自付</span><b style="color:var(--danger)">¥${b.self.toFixed(2)}</b></div>
+        <div class="row"><span>开票时间</span><b>${nowFull()}</b></div>
+      </div>
+      <div class="modal-actions"><button class="btn btn-primary" data-act="modal-close">关闭</button></div>`);
+  },
+  'catalog-toggle': d => persist('/api/catalog/' + d.code + '/toggle', {}, '目录状态已切换'),
+  'anomaly-pass': d => persist('/api/anomaly/' + d.id + '/pass', {}, `异常费用 ${d.id} 已通过复核`),
+  'anomaly-reject': d => persist('/api/anomaly/' + d.id + '/reject', {}, `异常费用 ${d.id} 已驳回`),
+
+  /* ---- 患者 ---- */
+  'pick-dept': d => {
+    state.booking.dept = d.id;
+    state.booking.doctor = null;
+    state.booking.slot = null;
+    render();
+  },
+  'pick-doctor': d => {
+    state.booking.doctor = d.id;
+    state.booking.slot = null;
+    render();
+  },
+  'pick-date': d => { state.booking.dateIdx = +d.idx; state.booking.slot = null; render(); },
+  'pick-slot': d => { state.booking.slot = d.slot; render(); },
+  'pay': async () => {
+    const b = state.booking;
+    if (!b.doctor || b.slot === null) return toast('请先选择医生与就诊时段', 'warn');
+    const doc = DOCTORS.find(d => d.id === b.doctor);
+    const dates = dateLabels();
+    const r = await api('POST', '/api/booking', {
+      deptId: b.dept, doctorId: b.doctor, dateLabel: dates[b.dateIdx].label, slot: b.slot,
+    });
+    if (!r.ok) return toast(r.msg || '挂号失败', 'warn');
+    state.lastAppt = Object.assign({}, r.appt, { no: 'A' + (state.queue.length + 1), code: 'HK' + Date.now().toString().slice(-10) });
+    await loadData();
+    render();
+    toast('支付成功，号源已锁定');
+  },
+  'new-booking': () => {
+    state.lastAppt = null;
+    state.booking = { dept: null, doctor: null, dateIdx: 0, slot: null };
+    render();
+  },
+  'pat-cancel': d => persist('/api/appt/' + d.id + '/cancel', {}, `预约 ${d.id} 已取消`),
+  'pat-reschedule': d => {
+    const a = state.patientAppts.find(x => x.id === d.id);
+    toast(`改期申请已提交，客服将在 30 分钟内联系您`);
+  },
+  'pat-pay': d => persist('/api/paybill/' + d.id, {}, '支付成功，账单已更新'),
+  'pat-read-all': () => persist('/api/pmessages/read-all', {}, '全部消息已标记为已读'),
+  'pat-video': () => {
+    toast('正在连接医生，请稍候…');
+  },
+
+  /* ---- 管理员 ---- */
+  'adm-backup-now': () => persist('/api/backup', {}, '手动备份已完成'),
+  'adm-refresh-api': () => persist('/api/refresh-api', {}, '接口数据已刷新'),
+};
+
+/* =========================================================
+   事件绑定
+   ========================================================= */
+document.addEventListener('click', e => {
+  const mask = e.target.closest('.modal-mask');
+  const stop = e.target.closest('[data-stop]');
+  if (mask && !stop) { closeModal(); return; }
+
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.dataset.act;
+  if (act === 'modal-close' && el.classList.contains('modal-mask')) return;
+  const fn = ACTIONS[act];
+  if (fn) { e.preventDefault(); fn(el.dataset); }
+});
+
+/* 表单输入实时写入状态（不触发重渲染，保持焦点） */
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.form) {
+    const f = getForm(t.dataset.form);
+    f[t.dataset.field] = t.value;
+  }
+  if (t.id === 'emrSearch') {
+    const q = t.value.trim().toLowerCase();
+    $$('.rec-row').forEach(r => {
+      r.style.display = (!q || r.dataset.text.toLowerCase().includes(q)) ? '' : 'none';
+    });
+  }
+});
+
+/* 登录 / 退出 / 回车登录 */
+$('#logoutBtn').addEventListener('click', logout);
+$('#loginBtn').addEventListener('click', doLogin);
+$('#loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+$('#loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+/* 切换身份时提示对应账号 */
+$('#loginRole').addEventListener('change', e => {
+  const map = { '患者':'patient1', '医生':'doctor1', '护士':'nurse1', '药师':'pharma1', '医保人员':'insurance1', '系统管理员':'admin' };
+  $('#loginUser').value = map[e.target.value] || '';
+});
+
+/* 时钟 */
+function tickClock() {
+  const d = new Date();
+  const w = ['周日','周一','周二','周三','周四','周五','周六'];
+  $('#clock').textContent = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${w[d.getDay()]} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+setInterval(tickClock, 1000);
+
+/* =========================================================
+   启动
+   ========================================================= */
+tickClock();
+boot();
+</script>
+</body>
+</html>
